@@ -1,0 +1,3074 @@
+[
+  {
+    "name": "Справка и история",
+    "icon": "?",
+    "commands": [
+      {
+        "name": "Руководство команды",
+        "command": "man ls",
+        "description": "Полное руководство; q — выход, / — поиск",
+        "isDangerous": false
+      },
+      {
+        "name": "Краткая справка",
+        "command": "ls --help",
+        "description": "Краткая справка",
+        "isDangerous": false
+      },
+      {
+        "name": "Примеры использования",
+        "command": "tldr tar",
+        "description": "Примеры использования",
+        "isDangerous": false
+      },
+      {
+        "name": "Описание команды",
+        "command": "whatis cp",
+        "description": "Описание команды",
+        "isDangerous": false
+      },
+      {
+        "name": "Поиск по руководствам",
+        "command": "apropos archive",
+        "description": "Поиск по руководствам",
+        "isDangerous": false
+      },
+      {
+        "name": "Тип команды",
+        "command": "type -a ls",
+        "description": "Тип команды",
+        "isDangerous": false
+      },
+      {
+        "name": "Путь к программе",
+        "command": "which python3",
+        "description": "Путь к программе",
+        "isDangerous": false
+      },
+      {
+        "name": "История команд",
+        "command": "history",
+        "description": "История команд",
+        "isDangerous": false
+      },
+      {
+        "name": "Поиск в истории",
+        "command": "history | grep ssh",
+        "description": "Поиск в истории",
+        "isDangerous": false
+      },
+      {
+        "name": "Очистить экран",
+        "command": "clear",
+        "description": "Очистить экран",
+        "isDangerous": false
+      },
+      {
+        "name": "Переменная PATH",
+        "command": "echo $PATH",
+        "description": "Переменная PATH",
+        "isDangerous": false
+      },
+      {
+        "name": "Добавить папку в PATH",
+        "command": "export PATH=\"$HOME/.local/bin:$PATH\"",
+        "description": "Добавить папку в PATH",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Навигация",
+    "icon": "⌂",
+    "commands": [
+      {
+        "name": "Текущая директория",
+        "command": "pwd",
+        "description": "Текущая директория",
+        "isDangerous": false
+      },
+      {
+        "name": "Перейти в /etc",
+        "command": "cd /etc",
+        "description": "Перейти в /etc",
+        "isDangerous": false
+      },
+      {
+        "name": "На уровень выше",
+        "command": "cd ..",
+        "description": "На уровень выше",
+        "isDangerous": false
+      },
+      {
+        "name": "Домашняя папка",
+        "command": "cd ~",
+        "description": "Домашняя папка",
+        "isDangerous": false
+      },
+      {
+        "name": "Предыдущая папка",
+        "command": "cd -",
+        "description": "Предыдущая папка",
+        "isDangerous": false
+      },
+      {
+        "name": "Список файлов",
+        "command": "ls",
+        "description": "Список файлов",
+        "isDangerous": false
+      },
+      {
+        "name": "Подробный список",
+        "command": "ls -la",
+        "description": "Подробный список",
+        "isDangerous": false
+      },
+      {
+        "name": "Человекочитаемые размеры",
+        "command": "ls -lh",
+        "description": "Человекочитаемые размеры",
+        "isDangerous": false
+      },
+      {
+        "name": "Сортировка по дате",
+        "command": "ls -lt",
+        "description": "Сортировка по дате",
+        "isDangerous": false
+      },
+      {
+        "name": "Сортировка по размеру",
+        "command": "ls -lS",
+        "description": "Сортировка по размеру",
+        "isDangerous": false
+      },
+      {
+        "name": "Дерево каталогов",
+        "command": "tree -L 2",
+        "description": "Дерево каталогов",
+        "isDangerous": false
+      },
+      {
+        "name": "Перейти с возвратом",
+        "command": "pushd /var/log",
+        "description": "Перейти с возвратом",
+        "isDangerous": false
+      },
+      {
+        "name": "Вернуться из стека",
+        "command": "popd",
+        "description": "Вернуться из стека",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Файлы и папки",
+    "icon": "▤",
+    "commands": [
+      {
+        "name": "Создать файл",
+        "command": "touch file.txt",
+        "description": "Создать файл",
+        "isDangerous": false
+      },
+      {
+        "name": "Создать папку",
+        "command": "mkdir dir",
+        "description": "Создать папку",
+        "isDangerous": false
+      },
+      {
+        "name": "Вложенные папки",
+        "command": "mkdir -p a/b/c",
+        "description": "Вложенные папки",
+        "isDangerous": false
+      },
+      {
+        "name": "Структура проекта",
+        "command": "mkdir -p project/{src,tests,docs}",
+        "description": "Структура проекта",
+        "isDangerous": false
+      },
+      {
+        "name": "Копировать файл",
+        "command": "cp file.txt copy.txt",
+        "description": "Копировать файл",
+        "isDangerous": false
+      },
+      {
+        "name": "Копировать папку",
+        "command": "cp -r dir/ backup/",
+        "description": "Копировать папку",
+        "isDangerous": false
+      },
+      {
+        "name": "Копировать с атрибутами",
+        "command": "cp -a src/ dst/",
+        "description": "Копировать с атрибутами",
+        "isDangerous": false
+      },
+      {
+        "name": "Переименовать",
+        "command": "mv old.txt new.txt",
+        "description": "Переименовать",
+        "isDangerous": false
+      },
+      {
+        "name": "Переместить",
+        "command": "mv file.txt /tmp/",
+        "description": "Переместить",
+        "isDangerous": false
+      },
+      {
+        "name": "Не перезаписывать",
+        "command": "mv -n a b",
+        "description": "Не перезаписывать",
+        "isDangerous": false
+      },
+      {
+        "name": "Удалить файл с подтверждением",
+        "command": "rm -i file.txt",
+        "description": "Удалить файл с подтверждением",
+        "isDangerous": false
+      },
+      {
+        "name": "Удалить папку",
+        "command": "rm -r dir/",
+        "description": "Рекурсивное удаление содержимого",
+        "isDangerous": true
+      },
+      {
+        "name": "Удалить пустую папку",
+        "command": "rmdir dir",
+        "description": "Удалить пустую папку",
+        "isDangerous": false
+      },
+      {
+        "name": "Символическая ссылка",
+        "command": "ln -s /path/target link",
+        "description": "Символическая ссылка",
+        "isDangerous": false
+      },
+      {
+        "name": "Жёсткая ссылка",
+        "command": "ln target hardlink",
+        "description": "Жёсткая ссылка",
+        "isDangerous": false
+      },
+      {
+        "name": "Метаданные файла",
+        "command": "stat file.txt",
+        "description": "Метаданные файла",
+        "isDangerous": false
+      },
+      {
+        "name": "Тип файла",
+        "command": "file image.png",
+        "description": "Тип файла",
+        "isDangerous": false
+      },
+      {
+        "name": "Размер папки",
+        "command": "du -sh dir/",
+        "description": "Размер папки",
+        "isDangerous": false
+      },
+      {
+        "name": "Имя из пути",
+        "command": "basename /a/b/c.txt",
+        "description": "Имя из пути",
+        "isDangerous": false
+      },
+      {
+        "name": "Папка из пути",
+        "command": "dirname /a/b/c.txt",
+        "description": "Папка из пути",
+        "isDangerous": false
+      },
+      {
+        "name": "Файлы по маске",
+        "command": "ls *.log",
+        "description": "Файлы по маске",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Просмотр файлов",
+    "icon": "≡",
+    "commands": [
+      {
+        "name": "Файл целиком",
+        "command": "cat file",
+        "description": "Файл целиком",
+        "isDangerous": false
+      },
+      {
+        "name": "Номера строк",
+        "command": "cat -n file",
+        "description": "Номера строк",
+        "isDangerous": false
+      },
+      {
+        "name": "Постраничный просмотр",
+        "command": "less file",
+        "description": "Постраничный просмотр",
+        "isDangerous": false
+      },
+      {
+        "name": "Первые 20 строк",
+        "command": "head -n 20 file",
+        "description": "Первые 20 строк",
+        "isDangerous": false
+      },
+      {
+        "name": "Последние 20 строк",
+        "command": "tail -n 20 file",
+        "description": "Последние 20 строк",
+        "isDangerous": false
+      },
+      {
+        "name": "Следить за syslog",
+        "command": "tail -f /var/log/syslog",
+        "description": "Следить за syslog",
+        "isDangerous": false
+      },
+      {
+        "name": "Следить с ротацией",
+        "command": "tail -F file",
+        "description": "Следить с ротацией",
+        "isDangerous": false
+      },
+      {
+        "name": "Число строк",
+        "command": "wc -l file",
+        "description": "Число строк",
+        "isDangerous": false
+      },
+      {
+        "name": "Сравнить файлы",
+        "command": "diff a.txt b.txt",
+        "description": "Сравнить файлы",
+        "isDangerous": false
+      },
+      {
+        "name": "Unified diff",
+        "command": "diff -u a b",
+        "description": "Unified diff",
+        "isDangerous": false
+      },
+      {
+        "name": "Побайтовое сравнение",
+        "command": "cmp a b",
+        "description": "Побайтовое сравнение",
+        "isDangerous": false
+      },
+      {
+        "name": "SHA-256",
+        "command": "sha256sum file",
+        "description": "SHA-256",
+        "isDangerous": false
+      },
+      {
+        "name": "Hex-дамп",
+        "command": "xxd file | head",
+        "description": "Hex-дамп",
+        "isDangerous": false
+      },
+      {
+        "name": "Строки бинарника",
+        "command": "strings binary",
+        "description": "Строки бинарника",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Поиск и grep",
+    "icon": "⌕",
+    "commands": [
+      {
+        "name": "Поиск по имени",
+        "command": "find . -name \"*.log\"",
+        "description": "Поиск по имени",
+        "isDangerous": false
+      },
+      {
+        "name": "Без учёта регистра",
+        "command": "find . -iname \"readme*\"",
+        "description": "Без учёта регистра",
+        "isDangerous": false
+      },
+      {
+        "name": "Файлы больше 100 МБ",
+        "command": "find /var -type f -size +100M",
+        "description": "Файлы больше 100 МБ",
+        "isDangerous": false
+      },
+      {
+        "name": "Только папки",
+        "command": "find . -type d -name node_modules",
+        "description": "Только папки",
+        "isDangerous": false
+      },
+      {
+        "name": "Изменены за сутки",
+        "command": "find . -mtime -1",
+        "description": "Изменены за сутки",
+        "isDangerous": false
+      },
+      {
+        "name": "Изменены за 30 минут",
+        "command": "find . -mmin -30",
+        "description": "Изменены за 30 минут",
+        "isDangerous": false
+      },
+      {
+        "name": "Пустые файлы и папки",
+        "command": "find . -empty",
+        "description": "Пустые файлы и папки",
+        "isDangerous": false
+      },
+      {
+        "name": "Файлы пользователя",
+        "command": "find . -user alice",
+        "description": "Файлы пользователя",
+        "isDangerous": false
+      },
+      {
+        "name": "Файлы с правами 777",
+        "command": "find . -perm 777",
+        "description": "Файлы с правами 777",
+        "isDangerous": false
+      },
+      {
+        "name": "Удалить найденные tmp",
+        "command": "find . -name \"*.tmp\" -delete",
+        "description": "Удаляет все найденные .tmp",
+        "isDangerous": true
+      },
+      {
+        "name": "chmod для найденных",
+        "command": "find . -name \"*.sh\" -exec chmod +x {} \\;",
+        "description": "chmod для найденных",
+        "isDangerous": false
+      },
+      {
+        "name": "Строки во всех JS",
+        "command": "find . -type f -name \"*.js\" | xargs wc -l",
+        "description": "Строки во всех JS",
+        "isDangerous": false
+      },
+      {
+        "name": "Обновить locate",
+        "command": "sudo updatedb",
+        "description": "Обновить locate",
+        "isDangerous": false
+      },
+      {
+        "name": "Быстрый поиск",
+        "command": "locate nginx.conf",
+        "description": "Быстрый поиск",
+        "isDangerous": false
+      },
+      {
+        "name": "Текст в файле",
+        "command": "grep \"error\" file.log",
+        "description": "Текст в файле",
+        "isDangerous": false
+      },
+      {
+        "name": "Рекурсивный поиск",
+        "command": "grep -rn \"TODO\" .",
+        "description": "Рекурсивный поиск",
+        "isDangerous": false
+      },
+      {
+        "name": "Только имена файлов",
+        "command": "grep -rl \"TODO\" .",
+        "description": "Только имена файлов",
+        "isDangerous": false
+      },
+      {
+        "name": "Строки без совпадения",
+        "command": "grep -v \"debug\" file.log",
+        "description": "Строки без совпадения",
+        "isDangerous": false
+      },
+      {
+        "name": "Число совпадений",
+        "command": "grep -c \"error\" file.log",
+        "description": "Число совпадений",
+        "isDangerous": false
+      },
+      {
+        "name": "Целое слово",
+        "command": "grep -w \"cat\" file.log",
+        "description": "Целое слово",
+        "isDangerous": false
+      },
+      {
+        "name": "Несколько шаблонов",
+        "command": "grep -E \"err|warn\" file.log",
+        "description": "Несколько шаблонов",
+        "isDangerous": false
+      },
+      {
+        "name": "Контекст совпадения",
+        "command": "grep -A 3 -B 2 \"panic\" file.log",
+        "description": "Контекст совпадения",
+        "isDangerous": false
+      },
+      {
+        "name": "Только Python-файлы",
+        "command": "grep --include=\"*.py\" -rn \"import\" .",
+        "description": "Только Python-файлы",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Права доступа",
+    "icon": "♢",
+    "commands": [
+      {
+        "name": "Права 755",
+        "command": "chmod 755 script.sh",
+        "description": "Права 755",
+        "isDangerous": false
+      },
+      {
+        "name": "Разрешить запуск",
+        "command": "chmod +x script.sh",
+        "description": "Разрешить запуск",
+        "isDangerous": false
+      },
+      {
+        "name": "Символьные права",
+        "command": "chmod u+x,g-w,o-r file",
+        "description": "Символьные права",
+        "isDangerous": false
+      },
+      {
+        "name": "Рекурсивные права",
+        "command": "chmod -R 755 dir/",
+        "description": "Меняет права всего содержимого",
+        "isDangerous": true
+      },
+      {
+        "name": "Сменить владельца",
+        "command": "sudo chown alice file",
+        "description": "Сменить владельца",
+        "isDangerous": false
+      },
+      {
+        "name": "Владелец и группа",
+        "command": "sudo chown alice:devs file",
+        "description": "Владелец и группа",
+        "isDangerous": false
+      },
+      {
+        "name": "Владелец веб-каталога",
+        "command": "sudo chown -R www-data:www-data /var/www",
+        "description": "Рекурсивная смена владельца",
+        "isDangerous": true
+      },
+      {
+        "name": "Сменить группу",
+        "command": "chgrp devs file",
+        "description": "Сменить группу",
+        "isDangerous": false
+      },
+      {
+        "name": "Маска по умолчанию",
+        "command": "umask",
+        "description": "Маска по умолчанию",
+        "isDangerous": false
+      },
+      {
+        "name": "SUID",
+        "command": "chmod u+s file",
+        "description": "Файл будет запускаться с правами владельца",
+        "isDangerous": true
+      },
+      {
+        "name": "SGID каталога",
+        "command": "chmod g+s dir",
+        "description": "SGID каталога",
+        "isDangerous": false
+      },
+      {
+        "name": "Sticky bit",
+        "command": "chmod +t dir",
+        "description": "Sticky bit",
+        "isDangerous": false
+      },
+      {
+        "name": "Показать ACL",
+        "command": "getfacl file",
+        "description": "Показать ACL",
+        "isDangerous": false
+      },
+      {
+        "name": "Выдать ACL",
+        "command": "setfacl -m u:bob:rw file",
+        "description": "Выдать ACL",
+        "isDangerous": false
+      },
+      {
+        "name": "Права SSH-ключа",
+        "command": "chmod 600 ~/.ssh/id_ed25519",
+        "description": "Права SSH-ключа",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Пользователи и sudo",
+    "icon": "♙",
+    "commands": [
+      {
+        "name": "Текущий пользователь",
+        "command": "whoami",
+        "description": "Текущий пользователь",
+        "isDangerous": false
+      },
+      {
+        "name": "UID и группы",
+        "command": "id",
+        "description": "UID и группы",
+        "isDangerous": false
+      },
+      {
+        "name": "Кто в системе",
+        "command": "who",
+        "description": "Кто в системе",
+        "isDangerous": false
+      },
+      {
+        "name": "Активность пользователей",
+        "command": "w",
+        "description": "Активность пользователей",
+        "isDangerous": false
+      },
+      {
+        "name": "История входов",
+        "command": "last",
+        "description": "История входов",
+        "isDangerous": false
+      },
+      {
+        "name": "Root-сессия",
+        "command": "sudo -i",
+        "description": "Root-сессия",
+        "isDangerous": false
+      },
+      {
+        "name": "Сменить пользователя",
+        "command": "su - alice",
+        "description": "Сменить пользователя",
+        "isDangerous": false
+      },
+      {
+        "name": "Создать пользователя",
+        "command": "sudo adduser alice",
+        "description": "Создать пользователя",
+        "isDangerous": false
+      },
+      {
+        "name": "Создать пользователя везде",
+        "command": "sudo useradd -m -s /bin/bash alice",
+        "description": "Создать пользователя везде",
+        "isDangerous": false
+      },
+      {
+        "name": "Задать пароль",
+        "command": "sudo passwd alice",
+        "description": "Задать пароль",
+        "isDangerous": false
+      },
+      {
+        "name": "Добавить в sudo",
+        "command": "sudo usermod -aG sudo alice",
+        "description": "Добавить в sudo",
+        "isDangerous": false
+      },
+      {
+        "name": "Удалить пользователя",
+        "command": "sudo userdel -r alice",
+        "description": "Удаляет пользователя и домашнюю папку",
+        "isDangerous": true
+      },
+      {
+        "name": "Группы пользователя",
+        "command": "groups alice",
+        "description": "Группы пользователя",
+        "isDangerous": false
+      },
+      {
+        "name": "Создать группу",
+        "command": "sudo groupadd devs",
+        "description": "Создать группу",
+        "isDangerous": false
+      },
+      {
+        "name": "Правка sudoers",
+        "command": "sudo visudo",
+        "description": "Правка sudoers",
+        "isDangerous": false
+      },
+      {
+        "name": "Срок пароля",
+        "command": "sudo chage -l alice",
+        "description": "Срок пароля",
+        "isDangerous": false
+      },
+      {
+        "name": "Разрешения sudo",
+        "command": "sudo -l",
+        "description": "Разрешения sudo",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Процессы",
+    "icon": "⌁",
+    "commands": [
+      {
+        "name": "Все процессы",
+        "command": "ps aux",
+        "description": "Все процессы",
+        "isDangerous": false
+      },
+      {
+        "name": "Найти процесс",
+        "command": "ps aux | grep nginx",
+        "description": "Найти процесс",
+        "isDangerous": false
+      },
+      {
+        "name": "Дерево процессов",
+        "command": "ps -ef --forest",
+        "description": "Дерево процессов",
+        "isDangerous": false
+      },
+      {
+        "name": "PID по имени",
+        "command": "pgrep -a nginx",
+        "description": "PID по имени",
+        "isDangerous": false
+      },
+      {
+        "name": "Монитор процессов",
+        "command": "top",
+        "description": "Монитор процессов",
+        "isDangerous": false
+      },
+      {
+        "name": "Удобный монитор",
+        "command": "htop",
+        "description": "Удобный монитор",
+        "isDangerous": false
+      },
+      {
+        "name": "Завершить процесс",
+        "command": "kill PID",
+        "description": "Отправляет SIGTERM; замените PID",
+        "isDangerous": false
+      },
+      {
+        "name": "Принудительно завершить",
+        "command": "kill -9 PID",
+        "description": "SIGKILL без очистки; замените PID",
+        "isDangerous": true
+      },
+      {
+        "name": "Завершить по шаблону",
+        "command": "pkill -f \"python app.py\"",
+        "description": "Завершает подходящие процессы",
+        "isDangerous": true
+      },
+      {
+        "name": "Приоритет запуска",
+        "command": "nice -n 10 cmd",
+        "description": "Приоритет запуска",
+        "isDangerous": false
+      },
+      {
+        "name": "Изменить приоритет",
+        "command": "renice -n 5 -p PID",
+        "description": "Изменить приоритет",
+        "isDangerous": false
+      },
+      {
+        "name": "Файлы процесса",
+        "command": "lsof -p PID",
+        "description": "Файлы процесса",
+        "isDangerous": false
+      },
+      {
+        "name": "Кто занял порт",
+        "command": "lsof -i :8080",
+        "description": "Кто занял порт",
+        "isDangerous": false
+      },
+      {
+        "name": "Фоновые задачи",
+        "command": "jobs",
+        "description": "Фоновые задачи",
+        "isDangerous": false
+      },
+      {
+        "name": "Вернуть задачу",
+        "command": "fg %1",
+        "description": "Вернуть задачу",
+        "isDangerous": false
+      },
+      {
+        "name": "Продолжить в фоне",
+        "command": "bg",
+        "description": "Продолжить в фоне",
+        "isDangerous": false
+      },
+      {
+        "name": "Запуск после выхода",
+        "command": "nohup cmd &",
+        "description": "Запуск после выхода",
+        "isDangerous": false
+      },
+      {
+        "name": "Новая tmux-сессия",
+        "command": "tmux new -s work",
+        "description": "Новая tmux-сессия",
+        "isDangerous": false
+      },
+      {
+        "name": "Подключиться к tmux",
+        "command": "tmux attach -t work",
+        "description": "Подключиться к tmux",
+        "isDangerous": false
+      },
+      {
+        "name": "Сессии tmux",
+        "command": "tmux ls",
+        "description": "Сессии tmux",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Система",
+    "icon": "⚙",
+    "commands": [
+      {
+        "name": "Ядро и архитектура",
+        "command": "uname -a",
+        "description": "Ядро и архитектура",
+        "isDangerous": false
+      },
+      {
+        "name": "Дистрибутив",
+        "command": "cat /etc/os-release",
+        "description": "Дистрибутив",
+        "isDangerous": false
+      },
+      {
+        "name": "Сведения о хосте",
+        "command": "hostnamectl",
+        "description": "Сведения о хосте",
+        "isDangerous": false
+      },
+      {
+        "name": "Время работы",
+        "command": "uptime",
+        "description": "Время работы",
+        "isDangerous": false
+      },
+      {
+        "name": "Память и swap",
+        "command": "free -h",
+        "description": "Память и swap",
+        "isDangerous": false
+      },
+      {
+        "name": "Число ядер",
+        "command": "nproc",
+        "description": "Число ядер",
+        "isDangerous": false
+      },
+      {
+        "name": "Процессор",
+        "command": "lscpu",
+        "description": "Процессор",
+        "isDangerous": false
+      },
+      {
+        "name": "PCI-устройства",
+        "command": "lspci",
+        "description": "PCI-устройства",
+        "isDangerous": false
+      },
+      {
+        "name": "USB-устройства",
+        "command": "lsusb",
+        "description": "USB-устройства",
+        "isDangerous": false
+      },
+      {
+        "name": "Модули памяти",
+        "command": "sudo dmidecode -t memory",
+        "description": "Модули памяти",
+        "isDangerous": false
+      },
+      {
+        "name": "Состояние ресурсов",
+        "command": "vmstat 1 5",
+        "description": "Состояние ресурсов",
+        "isDangerous": false
+      },
+      {
+        "name": "Дисковая нагрузка",
+        "command": "iostat -x 1 3",
+        "description": "Дисковая нагрузка",
+        "isDangerous": false
+      },
+      {
+        "name": "Сообщения ядра",
+        "command": "dmesg -T | tail -30",
+        "description": "Сообщения ядра",
+        "isDangerous": false
+      },
+      {
+        "name": "Дата и время",
+        "command": "timedatectl",
+        "description": "Дата и время",
+        "isDangerous": false
+      },
+      {
+        "name": "Переменные окружения",
+        "command": "env",
+        "description": "Переменные окружения",
+        "isDangerous": false
+      },
+      {
+        "name": "Текущая оболочка",
+        "command": "echo $SHELL",
+        "description": "Текущая оболочка",
+        "isDangerous": false
+      },
+      {
+        "name": "Самые большие файлы",
+        "command": "sudo find / -xdev -type f -printf '%s %p\\n' 2>/dev/null | sort -rn | head -10 | numfmt --field=1 --to=iec",
+        "description": "Самые большие файлы",
+        "isDangerous": false
+      },
+      {
+        "name": "Частые команды",
+        "command": "history | awk '{print $2}' | sort | uniq -c | sort -rn | head",
+        "description": "Частые команды",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Диски и файловые системы",
+    "icon": "▣",
+    "commands": [
+      {
+        "name": "Свободное место",
+        "command": "df -h",
+        "description": "Свободное место",
+        "isDangerous": false
+      },
+      {
+        "name": "Свободные inode",
+        "command": "df -i",
+        "description": "Свободные inode",
+        "isDangerous": false
+      },
+      {
+        "name": "Размеры в папке",
+        "command": "du -sh *",
+        "description": "Размеры в папке",
+        "isDangerous": false
+      },
+      {
+        "name": "Что занимает корень",
+        "command": "sudo du -xh --max-depth=1 / | sort -h",
+        "description": "Что занимает корень",
+        "isDangerous": false
+      },
+      {
+        "name": "Интерактивный анализ",
+        "command": "ncdu /",
+        "description": "Интерактивный анализ",
+        "isDangerous": false
+      },
+      {
+        "name": "Диски и UUID",
+        "command": "lsblk -f",
+        "description": "Диски и UUID",
+        "isDangerous": false
+      },
+      {
+        "name": "UUID разделов",
+        "command": "sudo blkid",
+        "description": "UUID разделов",
+        "isDangerous": false
+      },
+      {
+        "name": "Таблицы разделов",
+        "command": "sudo fdisk -l",
+        "description": "Таблицы разделов",
+        "isDangerous": false
+      },
+      {
+        "name": "Точки монтирования",
+        "command": "findmnt",
+        "description": "Точки монтирования",
+        "isDangerous": false
+      },
+      {
+        "name": "Проверить fstab",
+        "command": "sudo findmnt --verify",
+        "description": "Проверить fstab",
+        "isDangerous": false
+      },
+      {
+        "name": "Смонтировать fstab",
+        "command": "sudo mount -a",
+        "description": "Смонтировать fstab",
+        "isDangerous": false
+      },
+      {
+        "name": "Монтирование",
+        "command": "sudo mount /dev/sdb1 /mnt",
+        "description": "Монтирование",
+        "isDangerous": false
+      },
+      {
+        "name": "Размонтирование",
+        "command": "sudo umount /mnt",
+        "description": "Размонтирование",
+        "isDangerous": false
+      },
+      {
+        "name": "Форматировать ext4",
+        "command": "sudo mkfs.ext4 /dev/sdb1",
+        "description": "Уничтожает данные раздела",
+        "isDangerous": true
+      },
+      {
+        "name": "Проверить ФС",
+        "command": "sudo fsck /dev/sdb1",
+        "description": "Только на размонтированной ФС",
+        "isDangerous": true
+      },
+      {
+        "name": "SMART диска",
+        "command": "sudo smartctl -a /dev/sda",
+        "description": "SMART диска",
+        "isDangerous": false
+      },
+      {
+        "name": "SMART NVMe",
+        "command": "sudo nvme smart-log /dev/nvme0",
+        "description": "SMART NVMe",
+        "isDangerous": false
+      },
+      {
+        "name": "Создать swap-файл",
+        "command": "sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile",
+        "description": "Создаёт и включает swap 2 ГБ",
+        "isDangerous": true
+      },
+      {
+        "name": "Большие папки",
+        "command": "du -ah --max-depth=1 . | sort -rh | head -10",
+        "description": "Большие папки",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Сеть",
+    "icon": "◎",
+    "commands": [
+      {
+        "name": "IP-адреса",
+        "command": "ip -brief address",
+        "description": "IP-адреса",
+        "isDangerous": false
+      },
+      {
+        "name": "Маршруты",
+        "command": "ip route",
+        "description": "Маршруты",
+        "isDangerous": false
+      },
+      {
+        "name": "Проверка связи",
+        "command": "ping -c 4 8.8.8.8",
+        "description": "Проверка связи",
+        "isDangerous": false
+      },
+      {
+        "name": "Маршрут до хоста",
+        "command": "traceroute google.com",
+        "description": "Маршрут до хоста",
+        "isDangerous": false
+      },
+      {
+        "name": "Сетевая диагностика",
+        "command": "mtr google.com",
+        "description": "Сетевая диагностика",
+        "isDangerous": false
+      },
+      {
+        "name": "Открытые порты",
+        "command": "sudo ss -tulpn",
+        "description": "Открытые порты",
+        "isDangerous": false
+      },
+      {
+        "name": "HTTP-заголовки",
+        "command": "curl -I https://example.com",
+        "description": "HTTP-заголовки",
+        "isDangerous": false
+      },
+      {
+        "name": "Скачать файл",
+        "command": "curl -O URL",
+        "description": "Скачать файл",
+        "isDangerous": false
+      },
+      {
+        "name": "Скачать с докачкой",
+        "command": "wget -c URL",
+        "description": "Скачать с докачкой",
+        "isDangerous": false
+      },
+      {
+        "name": "Внешний IP",
+        "command": "curl ifconfig.me",
+        "description": "Внешний IP",
+        "isDangerous": false
+      },
+      {
+        "name": "DNS-запрос",
+        "command": "dig example.com",
+        "description": "DNS-запрос",
+        "isDangerous": false
+      },
+      {
+        "name": "MX-записи",
+        "command": "dig +short example.com MX",
+        "description": "MX-записи",
+        "isDangerous": false
+      },
+      {
+        "name": "Простой DNS",
+        "command": "nslookup example.com",
+        "description": "Простой DNS",
+        "isDangerous": false
+      },
+      {
+        "name": "DNS-серверы",
+        "command": "cat /etc/resolv.conf",
+        "description": "DNS-серверы",
+        "isDangerous": false
+      },
+      {
+        "name": "Локальные имена",
+        "command": "cat /etc/hosts",
+        "description": "Локальные имена",
+        "isDangerous": false
+      },
+      {
+        "name": "Проверить порт",
+        "command": "nc -zv host 22",
+        "description": "Проверить порт",
+        "isDangerous": false
+      },
+      {
+        "name": "Перехват HTTP",
+        "command": "sudo tcpdump -i eth0 port 80",
+        "description": "Перехват HTTP",
+        "isDangerous": false
+      },
+      {
+        "name": "Wi-Fi сети",
+        "command": "nmcli device wifi list",
+        "description": "Wi-Fi сети",
+        "isDangerous": false
+      },
+      {
+        "name": "Кто занял порт 80",
+        "command": "sudo ss -tulpn | grep :80",
+        "description": "Кто занял порт 80",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Продвинутая сеть",
+    "icon": "⌘",
+    "commands": [
+      {
+        "name": "Маршрут пакета",
+        "command": "ip route get 1.1.1.1",
+        "description": "Маршрут пакета",
+        "isDangerous": false
+      },
+      {
+        "name": "Счётчики интерфейса",
+        "command": "ip -s link show eth0",
+        "description": "Счётчики интерфейса",
+        "isDangerous": false
+      },
+      {
+        "name": "ARP-соседи",
+        "command": "ip neigh",
+        "description": "ARP-соседи",
+        "isDangerous": false
+      },
+      {
+        "name": "Добавить IP",
+        "command": "sudo ip addr add 192.168.1.50/24 dev eth0",
+        "description": "Меняет сетевую конфигурацию",
+        "isDangerous": true
+      },
+      {
+        "name": "Статический маршрут",
+        "command": "sudo ip route add 10.10.0.0/16 via 192.168.1.1",
+        "description": "Меняет маршрутизацию",
+        "isDangerous": true
+      },
+      {
+        "name": "Сводка сокетов",
+        "command": "ss -s",
+        "description": "Сводка сокетов",
+        "isDangerous": false
+      },
+      {
+        "name": "TCP established",
+        "command": "ss -tan state established",
+        "description": "TCP established",
+        "isDangerous": false
+      },
+      {
+        "name": "Число TIME-WAIT",
+        "command": "ss -tan state time-wait | wc -l",
+        "description": "Число TIME-WAIT",
+        "isDangerous": false
+      },
+      {
+        "name": "Соединения HTTPS",
+        "command": "ss -tnp '( dport = :443 or sport = :443 )'",
+        "description": "Соединения HTTPS",
+        "isDangerous": false
+      },
+      {
+        "name": "Состояния TCP",
+        "command": "ss -tan | awk 'NR>1{print $1}' | sort | uniq -c",
+        "description": "Состояния TCP",
+        "isDangerous": false
+      },
+      {
+        "name": "Тайминги HTTP",
+        "command": "curl -o /dev/null -s -w 'dns=%{time_namelookup} tcp=%{time_connect} tls=%{time_appconnect} ttfb=%{time_starttransfer} total=%{time_total}\\n' https://example.com",
+        "description": "Тайминги HTTP",
+        "isDangerous": false
+      },
+      {
+        "name": "Проверить сайт на IP",
+        "command": "curl --resolve example.com:443:203.0.113.10 https://example.com",
+        "description": "Проверить сайт на IP",
+        "isDangerous": false
+      },
+      {
+        "name": "TLS-сертификаты",
+        "command": "openssl s_client -connect example.com:443 -servername example.com </dev/null",
+        "description": "TLS-сертификаты",
+        "isDangerous": false
+      },
+      {
+        "name": "Срок сертификата",
+        "command": "echo | openssl s_client -connect example.com:443 2>/dev/null | openssl x509 -noout -dates",
+        "description": "Срок сертификата",
+        "isDangerous": false
+      },
+      {
+        "name": "Весь путь DNS",
+        "command": "dig +trace example.com",
+        "description": "Весь путь DNS",
+        "isDangerous": false
+      },
+      {
+        "name": "Конкретный DNS",
+        "command": "dig @1.1.1.1 example.com +short",
+        "description": "Конкретный DNS",
+        "isDangerous": false
+      },
+      {
+        "name": "PTR-запись",
+        "command": "dig -x 8.8.8.8 +short",
+        "description": "PTR-запись",
+        "isDangerous": false
+      },
+      {
+        "name": "DNS-трафик",
+        "command": "sudo tcpdump -i any -nn port 53",
+        "description": "DNS-трафик",
+        "isDangerous": false
+      },
+      {
+        "name": "Записать pcap",
+        "command": "sudo tcpdump -i eth0 -w dump.pcap",
+        "description": "Записать pcap",
+        "isDangerous": false
+      },
+      {
+        "name": "Нагрузка канала",
+        "command": "sudo iftop -i eth0",
+        "description": "Нагрузка канала",
+        "isDangerous": false
+      },
+      {
+        "name": "NetworkManager",
+        "command": "nmcli con show",
+        "description": "NetworkManager",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "SSH и передача файлов",
+    "icon": "⇄",
+    "commands": [
+      {
+        "name": "SSH-подключение",
+        "command": "ssh user@host",
+        "description": "SSH-подключение",
+        "isDangerous": false
+      },
+      {
+        "name": "SSH на другой порт",
+        "command": "ssh -p 2222 user@host",
+        "description": "SSH на другой порт",
+        "isDangerous": false
+      },
+      {
+        "name": "SSH с ключом",
+        "command": "ssh -i ~/.ssh/key user@host",
+        "description": "SSH с ключом",
+        "isDangerous": false
+      },
+      {
+        "name": "Создать SSH-ключ",
+        "command": "ssh-keygen -t ed25519 -C \"me@mail\"",
+        "description": "Создать SSH-ключ",
+        "isDangerous": false
+      },
+      {
+        "name": "Копировать ключ",
+        "command": "ssh-copy-id user@host",
+        "description": "Копировать ключ",
+        "isDangerous": false
+      },
+      {
+        "name": "Удалённая команда",
+        "command": "ssh user@host 'df -h'",
+        "description": "Удалённая команда",
+        "isDangerous": false
+      },
+      {
+        "name": "SCP на сервер",
+        "command": "scp file.txt user@host:/tmp/",
+        "description": "SCP на сервер",
+        "isDangerous": false
+      },
+      {
+        "name": "SCP с сервера",
+        "command": "scp user@host:/var/log/app.log .",
+        "description": "SCP с сервера",
+        "isDangerous": false
+      },
+      {
+        "name": "SCP папки",
+        "command": "scp -r dir/ user@host:~/",
+        "description": "SCP папки",
+        "isDangerous": false
+      },
+      {
+        "name": "Rsync по SSH",
+        "command": "rsync -avz dir/ user@host:~/dir/",
+        "description": "Rsync по SSH",
+        "isDangerous": false
+      },
+      {
+        "name": "Rsync с удалением",
+        "command": "rsync -avz --delete src/ dst/",
+        "description": "Удаляет лишнее в назначении",
+        "isDangerous": true
+      },
+      {
+        "name": "Rsync с прогрессом",
+        "command": "rsync -avzP big.iso user@host:~",
+        "description": "Rsync с прогрессом",
+        "isDangerous": false
+      },
+      {
+        "name": "Локальный проброс",
+        "command": "ssh -L 8080:localhost:80 user@host",
+        "description": "Локальный проброс",
+        "isDangerous": false
+      },
+      {
+        "name": "SOCKS-прокси",
+        "command": "ssh -D 1080 user@host",
+        "description": "SOCKS-прокси",
+        "isDangerous": false
+      },
+      {
+        "name": "Через bastion",
+        "command": "ssh -J jump@bastion user@internal",
+        "description": "Через bastion",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Архивы и сжатие",
+    "icon": "▧",
+    "commands": [
+      {
+        "name": "Создать tar.gz",
+        "command": "tar -czvf arch.tar.gz dir/",
+        "description": "Создать tar.gz",
+        "isDangerous": false
+      },
+      {
+        "name": "Распаковать tar.gz",
+        "command": "tar -xzvf arch.tar.gz",
+        "description": "Распаковать tar.gz",
+        "isDangerous": false
+      },
+      {
+        "name": "Распаковать в папку",
+        "command": "tar -xzvf arch.tar.gz -C /opt",
+        "description": "Распаковать в папку",
+        "isDangerous": false
+      },
+      {
+        "name": "Содержимое архива",
+        "command": "tar -tzvf arch.tar.gz",
+        "description": "Содержимое архива",
+        "isDangerous": false
+      },
+      {
+        "name": "Создать tar.xz",
+        "command": "tar -cJvf arch.tar.xz dir/",
+        "description": "Создать tar.xz",
+        "isDangerous": false
+      },
+      {
+        "name": "Автоформат tar",
+        "command": "tar -xf archive.tar",
+        "description": "Автоформат tar",
+        "isDangerous": false
+      },
+      {
+        "name": "Создать ZIP",
+        "command": "zip -r arch.zip dir/",
+        "description": "Создать ZIP",
+        "isDangerous": false
+      },
+      {
+        "name": "Распаковать ZIP",
+        "command": "unzip arch.zip -d dir/",
+        "description": "Распаковать ZIP",
+        "isDangerous": false
+      },
+      {
+        "name": "Сжать gzip",
+        "command": "gzip file",
+        "description": "Сжать gzip",
+        "isDangerous": false
+      },
+      {
+        "name": "Распаковать gzip",
+        "command": "gunzip file.gz",
+        "description": "Распаковать gzip",
+        "isDangerous": false
+      },
+      {
+        "name": "Прочитать gzip",
+        "command": "zcat file.gz",
+        "description": "Прочитать gzip",
+        "isDangerous": false
+      },
+      {
+        "name": "Распаковать 7z",
+        "command": "7z x arch.7z",
+        "description": "Распаковать 7z",
+        "isDangerous": false
+      },
+      {
+        "name": "Бэкап с датой",
+        "command": "tar -czf \"backup-$(date +%F).tar.gz\" ~/project",
+        "description": "Бэкап с датой",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Пакетные менеджеры",
+    "icon": "⇩",
+    "commands": [
+      {
+        "name": "APT: обновить списки",
+        "command": "sudo apt update",
+        "description": "APT: обновить списки",
+        "isDangerous": false
+      },
+      {
+        "name": "APT: обновить систему",
+        "command": "sudo apt upgrade",
+        "description": "APT: обновить систему",
+        "isDangerous": false
+      },
+      {
+        "name": "APT: установить",
+        "command": "sudo apt install pkg",
+        "description": "APT: установить",
+        "isDangerous": false
+      },
+      {
+        "name": "APT: удалить",
+        "command": "sudo apt remove pkg",
+        "description": "APT: удалить",
+        "isDangerous": false
+      },
+      {
+        "name": "APT: поиск",
+        "command": "apt search pkg",
+        "description": "APT: поиск",
+        "isDangerous": false
+      },
+      {
+        "name": "APT: информация",
+        "command": "apt show pkg",
+        "description": "APT: информация",
+        "isDangerous": false
+      },
+      {
+        "name": "APT: установленные",
+        "command": "apt list --installed",
+        "description": "APT: установленные",
+        "isDangerous": false
+      },
+      {
+        "name": "APT: чей файл",
+        "command": "dpkg -S /bin/ls",
+        "description": "APT: чей файл",
+        "isDangerous": false
+      },
+      {
+        "name": "APT: убрать лишнее",
+        "command": "sudo apt autoremove",
+        "description": "Удаляет неиспользуемые зависимости",
+        "isDangerous": true
+      },
+      {
+        "name": "APT: очистить кэш",
+        "command": "sudo apt clean",
+        "description": "APT: очистить кэш",
+        "isDangerous": false
+      },
+      {
+        "name": "DNF: обновить",
+        "command": "sudo dnf upgrade",
+        "description": "DNF: обновить",
+        "isDangerous": false
+      },
+      {
+        "name": "DNF: установить",
+        "command": "sudo dnf install pkg",
+        "description": "DNF: установить",
+        "isDangerous": false
+      },
+      {
+        "name": "DNF: поиск",
+        "command": "dnf search pkg",
+        "description": "DNF: поиск",
+        "isDangerous": false
+      },
+      {
+        "name": "DNF: чей файл",
+        "command": "rpm -qf /bin/ls",
+        "description": "DNF: чей файл",
+        "isDangerous": false
+      },
+      {
+        "name": "Pacman: обновить",
+        "command": "sudo pacman -Syu",
+        "description": "Pacman: обновить",
+        "isDangerous": false
+      },
+      {
+        "name": "Pacman: установить",
+        "command": "sudo pacman -S pkg",
+        "description": "Pacman: установить",
+        "isDangerous": false
+      },
+      {
+        "name": "Pacman: поиск",
+        "command": "pacman -Ss pkg",
+        "description": "Pacman: поиск",
+        "isDangerous": false
+      },
+      {
+        "name": "Snap: установить",
+        "command": "sudo snap install pkg",
+        "description": "Snap: установить",
+        "isDangerous": false
+      },
+      {
+        "name": "Flatpak: установить",
+        "command": "flatpak install flathub app",
+        "description": "Flatpak: установить",
+        "isDangerous": false
+      },
+      {
+        "name": "Zypper: установить",
+        "command": "sudo zypper install pkg",
+        "description": "Zypper: установить",
+        "isDangerous": false
+      },
+      {
+        "name": "APK: установить",
+        "command": "sudo apk add pkg",
+        "description": "APK: установить",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Systemd и службы",
+    "icon": "◉",
+    "commands": [
+      {
+        "name": "Статус службы",
+        "command": "systemctl status nginx",
+        "description": "Статус службы",
+        "isDangerous": false
+      },
+      {
+        "name": "Запустить службу",
+        "command": "sudo systemctl start nginx",
+        "description": "Запустить службу",
+        "isDangerous": false
+      },
+      {
+        "name": "Остановить службу",
+        "command": "sudo systemctl stop nginx",
+        "description": "Остановить службу",
+        "isDangerous": false
+      },
+      {
+        "name": "Перезапустить службу",
+        "command": "sudo systemctl restart nginx",
+        "description": "Перезапустить службу",
+        "isDangerous": false
+      },
+      {
+        "name": "Перечитать конфиг",
+        "command": "sudo systemctl reload nginx",
+        "description": "Перечитать конфиг",
+        "isDangerous": false
+      },
+      {
+        "name": "Автозапуск и старт",
+        "command": "sudo systemctl enable --now nginx",
+        "description": "Автозапуск и старт",
+        "isDangerous": false
+      },
+      {
+        "name": "Отключить автозапуск",
+        "command": "sudo systemctl disable nginx",
+        "description": "Отключить автозапуск",
+        "isDangerous": false
+      },
+      {
+        "name": "Активна ли служба",
+        "command": "systemctl is-active nginx",
+        "description": "Активна ли служба",
+        "isDangerous": false
+      },
+      {
+        "name": "Работающие службы",
+        "command": "systemctl list-units --type=service --state=running",
+        "description": "Работающие службы",
+        "isDangerous": false
+      },
+      {
+        "name": "Упавшие службы",
+        "command": "systemctl --failed",
+        "description": "Упавшие службы",
+        "isDangerous": false
+      },
+      {
+        "name": "Перечитать unit-файлы",
+        "command": "sudo systemctl daemon-reload",
+        "description": "Перечитать unit-файлы",
+        "isDangerous": false
+      },
+      {
+        "name": "Таймеры",
+        "command": "systemctl list-timers",
+        "description": "Таймеры",
+        "isDangerous": false
+      },
+      {
+        "name": "Время загрузки",
+        "command": "systemd-analyze blame",
+        "description": "Время загрузки",
+        "isDangerous": false
+      },
+      {
+        "name": "Показать unit",
+        "command": "systemctl cat nginx",
+        "description": "Показать unit",
+        "isDangerous": false
+      },
+      {
+        "name": "Override службы",
+        "command": "sudo systemctl edit nginx",
+        "description": "Override службы",
+        "isDangerous": false
+      },
+      {
+        "name": "Свойства службы",
+        "command": "systemctl show nginx -p MainPID,MemoryCurrent,NRestarts",
+        "description": "Свойства службы",
+        "isDangerous": false
+      },
+      {
+        "name": "Зависимости",
+        "command": "systemctl list-dependencies nginx",
+        "description": "Зависимости",
+        "isDangerous": false
+      },
+      {
+        "name": "Цепочка загрузки",
+        "command": "systemd-analyze critical-chain",
+        "description": "Цепочка загрузки",
+        "isDangerous": false
+      },
+      {
+        "name": "Проверить unit",
+        "command": "systemd-analyze verify my.service",
+        "description": "Проверить unit",
+        "isDangerous": false
+      },
+      {
+        "name": "Безопасность unit",
+        "command": "systemd-analyze security myapp",
+        "description": "Безопасность unit",
+        "isDangerous": false
+      },
+      {
+        "name": "Проверить calendar",
+        "command": "systemd-analyze calendar \"Mon..Fri *-*-* 09:00\"",
+        "description": "Проверить calendar",
+        "isDangerous": false
+      },
+      {
+        "name": "Лимит памяти",
+        "command": "sudo systemd-run --scope -p MemoryMax=1G ./heavy",
+        "description": "Лимит памяти",
+        "isDangerous": false
+      },
+      {
+        "name": "Пользовательская служба",
+        "command": "systemctl --user enable --now myapp",
+        "description": "Пользовательская служба",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Логи и journalctl",
+    "icon": "▥",
+    "commands": [
+      {
+        "name": "Логи службы",
+        "command": "journalctl -u nginx",
+        "description": "Логи службы",
+        "isDangerous": false
+      },
+      {
+        "name": "Следить за службой",
+        "command": "journalctl -u nginx -f",
+        "description": "Следить за службой",
+        "isDangerous": false
+      },
+      {
+        "name": "За последний час",
+        "command": "journalctl -u nginx --since \"1 hour ago\"",
+        "description": "За последний час",
+        "isDangerous": false
+      },
+      {
+        "name": "За сегодня",
+        "command": "journalctl --since today",
+        "description": "За сегодня",
+        "isDangerous": false
+      },
+      {
+        "name": "Текущая загрузка",
+        "command": "journalctl -b",
+        "description": "Текущая загрузка",
+        "isDangerous": false
+      },
+      {
+        "name": "Предыдущая загрузка",
+        "command": "journalctl -b -1",
+        "description": "Предыдущая загрузка",
+        "isDangerous": false
+      },
+      {
+        "name": "Только ошибки",
+        "command": "journalctl -p err",
+        "description": "Только ошибки",
+        "isDangerous": false
+      },
+      {
+        "name": "Последние 100 строк",
+        "command": "journalctl -n 100 --no-pager",
+        "description": "Последние 100 строк",
+        "isDangerous": false
+      },
+      {
+        "name": "Размер журнала",
+        "command": "journalctl --disk-usage",
+        "description": "Размер журнала",
+        "isDangerous": false
+      },
+      {
+        "name": "Очистить старый журнал",
+        "command": "sudo journalctl --vacuum-size=500M",
+        "description": "Удаляет старые записи журнала",
+        "isDangerous": true
+      },
+      {
+        "name": "Запись в JSON",
+        "command": "journalctl -u nginx -o json-pretty -n 1",
+        "description": "Запись в JSON",
+        "isDangerous": false
+      },
+      {
+        "name": "Логи PID",
+        "command": "journalctl _PID=1234",
+        "description": "Логи PID",
+        "isDangerous": false
+      },
+      {
+        "name": "Логи sshd",
+        "command": "journalctl _COMM=sshd --since \"2 hours ago\"",
+        "description": "Логи sshd",
+        "isDangerous": false
+      },
+      {
+        "name": "Поиск timeout",
+        "command": "journalctl -u nginx --grep \"timeout\" -p warning",
+        "description": "Поиск timeout",
+        "isDangerous": false
+      },
+      {
+        "name": "Логи ядра",
+        "command": "journalctl -k -b",
+        "description": "Логи ядра",
+        "isDangerous": false
+      },
+      {
+        "name": "Постоянный журнал",
+        "command": "sudo mkdir -p /var/log/journal && sudo systemctl restart systemd-journald",
+        "description": "Постоянный журнал",
+        "isDangerous": false
+      },
+      {
+        "name": "Топ IP nginx",
+        "command": "awk '{print $1}' /var/log/nginx/access.log | sort | uniq -c | sort -rn | head",
+        "description": "Топ IP nginx",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Текст и данные",
+    "icon": "≣",
+    "commands": [
+      {
+        "name": "Заменить первое",
+        "command": "sed 's/old/new/' file",
+        "description": "Заменить первое",
+        "isDangerous": false
+      },
+      {
+        "name": "Заменить все",
+        "command": "sed 's/old/new/g' file",
+        "description": "Заменить все",
+        "isDangerous": false
+      },
+      {
+        "name": "Заменить в файле",
+        "command": "sed -i.bak 's/old/new/g' file",
+        "description": "Изменяет файл, сохраняет .bak",
+        "isDangerous": true
+      },
+      {
+        "name": "Строки 10–20",
+        "command": "sed -n '10,20p' file",
+        "description": "Строки 10–20",
+        "isDangerous": false
+      },
+      {
+        "name": "Убрать комментарии",
+        "command": "sed '/^#/d' file",
+        "description": "Убрать комментарии",
+        "isDangerous": false
+      },
+      {
+        "name": "Убрать пустые строки",
+        "command": "sed '/^$/d' file",
+        "description": "Убрать пустые строки",
+        "isDangerous": false
+      },
+      {
+        "name": "Первая колонка",
+        "command": "awk '{print $1}' file",
+        "description": "Первая колонка",
+        "isDangerous": false
+      },
+      {
+        "name": "Поля passwd",
+        "command": "awk -F: '{print $1, $7}' /etc/passwd",
+        "description": "Поля passwd",
+        "isDangerous": false
+      },
+      {
+        "name": "Фильтр колонки",
+        "command": "awk '$3 > 100' file",
+        "description": "Фильтр колонки",
+        "isDangerous": false
+      },
+      {
+        "name": "Сумма колонки",
+        "command": "awk '{sum += $2} END {print sum}' file",
+        "description": "Сумма колонки",
+        "isDangerous": false
+      },
+      {
+        "name": "Пятая строка",
+        "command": "awk 'NR==5' file",
+        "description": "Пятая строка",
+        "isDangerous": false
+      },
+      {
+        "name": "Колонки CSV",
+        "command": "cut -d, -f1,3 file.csv",
+        "description": "Колонки CSV",
+        "isDangerous": false
+      },
+      {
+        "name": "Сортировка",
+        "command": "sort file",
+        "description": "Сортировка",
+        "isDangerous": false
+      },
+      {
+        "name": "Частотный словарь",
+        "command": "sort file | uniq -c | sort -rn",
+        "description": "Частотный словарь",
+        "isDangerous": false
+      },
+      {
+        "name": "Верхний регистр",
+        "command": "tr 'a-z' 'A-Z' < file",
+        "description": "Верхний регистр",
+        "isDangerous": false
+      },
+      {
+        "name": "Убрать CR",
+        "command": "tr -d '\\r' < file",
+        "description": "Убрать CR",
+        "isDangerous": false
+      },
+      {
+        "name": "Выровнять таблицу",
+        "command": "column -t file",
+        "description": "Выровнять таблицу",
+        "isDangerous": false
+      },
+      {
+        "name": "Записать и показать",
+        "command": "tee file",
+        "description": "Записать и показать",
+        "isDangerous": false
+      },
+      {
+        "name": "Разбор JSON",
+        "command": "jq '.items[].name' data.json",
+        "description": "Разбор JSON",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Bash и потоки",
+    "icon": "›_",
+    "commands": [
+      {
+        "name": "Код выхода",
+        "command": "echo $?",
+        "description": "Код выхода",
+        "isDangerous": false
+      },
+      {
+        "name": "Тип команды",
+        "command": "type -a ls",
+        "description": "Тип команды",
+        "isDangerous": false
+      },
+      {
+        "name": "Прочитать bashrc",
+        "command": "source ~/.bashrc",
+        "description": "Прочитать bashrc",
+        "isDangerous": false
+      },
+      {
+        "name": "Проверить синтаксис",
+        "command": "bash -n script.sh",
+        "description": "Проверить синтаксис",
+        "isDangerous": false
+      },
+      {
+        "name": "Трассировка скрипта",
+        "command": "bash -x script.sh",
+        "description": "Трассировка скрипта",
+        "isDangerous": false
+      },
+      {
+        "name": "ShellCheck",
+        "command": "shellcheck script.sh",
+        "description": "ShellCheck",
+        "isDangerous": false
+      },
+      {
+        "name": "Сделать скрипт исполняемым",
+        "command": "chmod +x script.sh && ./script.sh",
+        "description": "Сделать скрипт исполняемым",
+        "isDangerous": false
+      },
+      {
+        "name": "Время выполнения",
+        "command": "time ./script.sh",
+        "description": "Время выполнения",
+        "isDangerous": false
+      },
+      {
+        "name": "Ограничить время",
+        "command": "timeout 10 curl -s https://example.com",
+        "description": "Ограничить время",
+        "isDangerous": false
+      },
+      {
+        "name": "Параллельный ping",
+        "command": "cat hosts | xargs -P4 -I{} ping -c1 {}",
+        "description": "Параллельный ping",
+        "isDangerous": false
+      },
+      {
+        "name": "Скачать список URL",
+        "command": "cat urls.txt | xargs -n1 curl -sO",
+        "description": "Скачать список URL",
+        "isDangerous": false
+      },
+      {
+        "name": "Сохранить stdout",
+        "command": "cmd > file",
+        "description": "Сохранить stdout",
+        "isDangerous": false
+      },
+      {
+        "name": "Дописать stdout",
+        "command": "cmd >> file",
+        "description": "Дописать stdout",
+        "isDangerous": false
+      },
+      {
+        "name": "Сохранить ошибки",
+        "command": "cmd 2> err.log",
+        "description": "Сохранить ошибки",
+        "isDangerous": false
+      },
+      {
+        "name": "Общий лог",
+        "command": "cmd > out.log 2>&1",
+        "description": "Общий лог",
+        "isDangerous": false
+      },
+      {
+        "name": "Вход из файла",
+        "command": "cmd < file",
+        "description": "Вход из файла",
+        "isDangerous": false
+      },
+      {
+        "name": "Условное выполнение",
+        "command": "cmd1 && cmd2",
+        "description": "Условное выполнение",
+        "isDangerous": false
+      },
+      {
+        "name": "При ошибке",
+        "command": "cmd1 || cmd2",
+        "description": "При ошибке",
+        "isDangerous": false
+      },
+      {
+        "name": "Сравнить каталоги",
+        "command": "diff <(ls a) <(ls b)",
+        "description": "Сравнить каталоги",
+        "isDangerous": false
+      },
+      {
+        "name": "Временная папка",
+        "command": "mktemp -d",
+        "description": "Временная папка",
+        "isDangerous": false
+      },
+      {
+        "name": "Переименовать JPEG",
+        "command": "for f in *.jpeg; do mv -- \"$f\" \"${f%.jpeg}.jpg\"; done",
+        "description": "Переименовать JPEG",
+        "isDangerous": false
+      },
+      {
+        "name": "Повторить прошлую команду",
+        "command": "!!",
+        "description": "Повторить прошлую команду",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Cron и автоматизация",
+    "icon": "◷",
+    "commands": [
+      {
+        "name": "Редактировать cron",
+        "command": "crontab -e",
+        "description": "Редактировать cron",
+        "isDangerous": false
+      },
+      {
+        "name": "Показать задачи",
+        "command": "crontab -l",
+        "description": "Показать задачи",
+        "isDangerous": false
+      },
+      {
+        "name": "Задачи пользователя",
+        "command": "sudo crontab -u alice -l",
+        "description": "Задачи пользователя",
+        "isDangerous": false
+      },
+      {
+        "name": "Таймеры systemd",
+        "command": "systemctl list-timers",
+        "description": "Таймеры systemd",
+        "isDangerous": false
+      },
+      {
+        "name": "Включить таймер",
+        "command": "sudo systemctl enable --now backup.timer",
+        "description": "Включить таймер",
+        "isDangerous": false
+      },
+      {
+        "name": "Запуск через 30 минут",
+        "command": "sudo systemd-run --on-active=30m /opt/backup.sh",
+        "description": "Запуск через 30 минут",
+        "isDangerous": false
+      },
+      {
+        "name": "Проверить расписание",
+        "command": "systemd-analyze calendar \"*/5 * * * *\"",
+        "description": "Проверить расписание",
+        "isDangerous": false
+      },
+      {
+        "name": "Следить за диском",
+        "command": "watch -n 2 'df -h /'",
+        "description": "Следить за диском",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Firewall",
+    "icon": "⛨",
+    "commands": [
+      {
+        "name": "UFW статус",
+        "command": "sudo ufw status verbose",
+        "description": "UFW статус",
+        "isDangerous": false
+      },
+      {
+        "name": "UFW разрешить SSH",
+        "command": "sudo ufw allow OpenSSH",
+        "description": "UFW разрешить SSH",
+        "isDangerous": false
+      },
+      {
+        "name": "UFW включить",
+        "command": "sudo ufw enable",
+        "description": "Сначала разрешите SSH, иначе доступ может быть потерян",
+        "isDangerous": true
+      },
+      {
+        "name": "UFW открыть HTTPS",
+        "command": "sudo ufw allow 443/tcp",
+        "description": "UFW открыть HTTPS",
+        "isDangerous": false
+      },
+      {
+        "name": "UFW закрыть HTTPS",
+        "command": "sudo ufw delete allow 443/tcp",
+        "description": "UFW закрыть HTTPS",
+        "isDangerous": false
+      },
+      {
+        "name": "UFW разрешить IP",
+        "command": "sudo ufw allow from 10.0.0.5",
+        "description": "UFW разрешить IP",
+        "isDangerous": false
+      },
+      {
+        "name": "Firewalld правила",
+        "command": "sudo firewall-cmd --list-all",
+        "description": "Firewalld правила",
+        "isDangerous": false
+      },
+      {
+        "name": "Firewalld открыть порт",
+        "command": "sudo firewall-cmd --add-port=443/tcp --permanent && sudo firewall-cmd --reload",
+        "description": "Firewalld открыть порт",
+        "isDangerous": false
+      },
+      {
+        "name": "Firewalld HTTP",
+        "command": "sudo firewall-cmd --add-service=http --permanent && sudo firewall-cmd --reload",
+        "description": "Firewalld HTTP",
+        "isDangerous": false
+      },
+      {
+        "name": "iptables правила",
+        "command": "sudo iptables -L -n -v",
+        "description": "iptables правила",
+        "isDangerous": false
+      },
+      {
+        "name": "nftables правила",
+        "command": "sudo nft list ruleset",
+        "description": "nftables правила",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "LVM и RAID",
+    "icon": "▦",
+    "commands": [
+      {
+        "name": "LVM: physical volumes",
+        "command": "sudo pvs",
+        "description": "LVM: physical volumes",
+        "isDangerous": false
+      },
+      {
+        "name": "LVM: volume groups",
+        "command": "sudo vgs",
+        "description": "LVM: volume groups",
+        "isDangerous": false
+      },
+      {
+        "name": "LVM: logical volumes",
+        "command": "sudo lvs",
+        "description": "LVM: logical volumes",
+        "isDangerous": false
+      },
+      {
+        "name": "Подготовить PV",
+        "command": "sudo pvcreate /dev/sdb",
+        "description": "Перезаписывает метаданные диска",
+        "isDangerous": true
+      },
+      {
+        "name": "Создать VG",
+        "command": "sudo vgcreate vg_data /dev/sdb",
+        "description": "Создаёт группу томов",
+        "isDangerous": true
+      },
+      {
+        "name": "Создать LV 20 ГБ",
+        "command": "sudo lvcreate -n lv_www -L 20G vg_data",
+        "description": "Создать LV 20 ГБ",
+        "isDangerous": false
+      },
+      {
+        "name": "Расширить LV",
+        "command": "sudo lvextend -r -L +10G /dev/vg_data/lv_www",
+        "description": "Расширить LV",
+        "isDangerous": false
+      },
+      {
+        "name": "Снапшот LVM",
+        "command": "sudo lvcreate -s -n www_snap -L 5G /dev/vg_data/lv_www",
+        "description": "Снапшот LVM",
+        "isDangerous": false
+      },
+      {
+        "name": "Удалить снапшот",
+        "command": "sudo lvremove vg_data/www_snap",
+        "description": "Удаляет снапшот и его изменения",
+        "isDangerous": true
+      },
+      {
+        "name": "Расширить раздел",
+        "command": "sudo growpart /dev/sda 1",
+        "description": "Меняет таблицу разделов",
+        "isDangerous": true
+      },
+      {
+        "name": "Расширить ext4",
+        "command": "sudo resize2fs /dev/sda1",
+        "description": "Расширить ext4",
+        "isDangerous": false
+      },
+      {
+        "name": "Расширить XFS",
+        "command": "sudo xfs_growfs /",
+        "description": "Расширить XFS",
+        "isDangerous": false
+      },
+      {
+        "name": "RAID статус",
+        "command": "cat /proc/mdstat",
+        "description": "RAID статус",
+        "isDangerous": false
+      },
+      {
+        "name": "RAID детали",
+        "command": "sudo mdadm --detail /dev/md0",
+        "description": "RAID детали",
+        "isDangerous": false
+      },
+      {
+        "name": "Создать RAID1",
+        "command": "sudo mdadm --create /dev/md0 --level=1 --raid-devices=2 /dev/sdb /dev/sdc",
+        "description": "Перезаписывает диски",
+        "isDangerous": true
+      },
+      {
+        "name": "Добавить диск RAID",
+        "command": "sudo mdadm /dev/md0 --add /dev/sdd",
+        "description": "Добавить диск RAID",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Производительность",
+    "icon": "⌇",
+    "commands": [
+      {
+        "name": "Первые 60 секунд",
+        "command": "uptime; free -h; vmstat 1 5; dmesg -T | tail -20",
+        "description": "Первые 60 секунд",
+        "isDangerous": false
+      },
+      {
+        "name": "Нагрузка по CPU",
+        "command": "mpstat -P ALL 1 3",
+        "description": "Нагрузка по CPU",
+        "isDangerous": false
+      },
+      {
+        "name": "CPU процессов",
+        "command": "pidstat 1 3",
+        "description": "CPU процессов",
+        "isDangerous": false
+      },
+      {
+        "name": "Задержки дисков",
+        "command": "iostat -xz 1 3",
+        "description": "Задержки дисков",
+        "isDangerous": false
+      },
+      {
+        "name": "Сетевой трафик",
+        "command": "sar -n DEV 1 3",
+        "description": "Сетевой трафик",
+        "isDangerous": false
+      },
+      {
+        "name": "Pressure Stall",
+        "command": "cat /proc/pressure/cpu /proc/pressure/memory /proc/pressure/io",
+        "description": "Pressure Stall",
+        "isDangerous": false
+      },
+      {
+        "name": "Статус процесса",
+        "command": "cat /proc/PID/status",
+        "description": "Статус процесса",
+        "isDangerous": false
+      },
+      {
+        "name": "Дескрипторы процесса",
+        "command": "ls -l /proc/PID/fd",
+        "description": "Дескрипторы процесса",
+        "isDangerous": false
+      },
+      {
+        "name": "Память процесса",
+        "command": "pmap -x PID",
+        "description": "Память процесса",
+        "isDangerous": false
+      },
+      {
+        "name": "Диск по процессам",
+        "command": "sudo iotop -o",
+        "description": "Диск по процессам",
+        "isDangerous": false
+      },
+      {
+        "name": "Системные вызовы",
+        "command": "strace -c -p PID",
+        "description": "Системные вызовы",
+        "isDangerous": false
+      },
+      {
+        "name": "Трассировка файлов",
+        "command": "strace -f -e trace=file -o trace.log cmd",
+        "description": "Трассировка файлов",
+        "isDangerous": false
+      },
+      {
+        "name": "Профиль системы",
+        "command": "sudo perf top",
+        "description": "Профиль системы",
+        "isDangerous": false
+      },
+      {
+        "name": "Запуск процессов",
+        "command": "sudo execsnoop",
+        "description": "Запуск процессов",
+        "isDangerous": false
+      },
+      {
+        "name": "Открытие файлов",
+        "command": "sudo opensnoop",
+        "description": "Открытие файлов",
+        "isDangerous": false
+      },
+      {
+        "name": "Задержки диска eBPF",
+        "command": "sudo biolatency",
+        "description": "Задержки диска eBPF",
+        "isDangerous": false
+      },
+      {
+        "name": "Топ по RSS",
+        "command": "ps -eo pid,comm,rss --sort=-rss | head",
+        "description": "Топ по RSS",
+        "isDangerous": false
+      },
+      {
+        "name": "Память ядра",
+        "command": "sudo slabtop -o | head -15",
+        "description": "Память ядра",
+        "isDangerous": false
+      },
+      {
+        "name": "Сводка памяти",
+        "command": "grep -E 'MemAvailable|Dirty|Slab|HugePages_Total' /proc/meminfo",
+        "description": "Сводка памяти",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Ядро и ресурсы",
+    "icon": "◈",
+    "commands": [
+      {
+        "name": "Параметр ядра",
+        "command": "sysctl net.ipv4.ip_forward",
+        "description": "Параметр ядра",
+        "isDangerous": false
+      },
+      {
+        "name": "Изменить параметр",
+        "command": "sudo sysctl -w net.ipv4.ip_forward=1",
+        "description": "Меняет поведение ядра",
+        "isDangerous": true
+      },
+      {
+        "name": "Применить sysctl",
+        "command": "sudo sysctl --system",
+        "description": "Применить sysctl",
+        "isDangerous": false
+      },
+      {
+        "name": "Загруженные модули",
+        "command": "lsmod",
+        "description": "Загруженные модули",
+        "isDangerous": false
+      },
+      {
+        "name": "О модуле",
+        "command": "modinfo e1000e",
+        "description": "О модуле",
+        "isDangerous": false
+      },
+      {
+        "name": "Загрузить модуль",
+        "command": "sudo modprobe br_netfilter",
+        "description": "Загрузить модуль",
+        "isDangerous": false
+      },
+      {
+        "name": "Параметры загрузки",
+        "command": "cat /proc/cmdline",
+        "description": "Параметры загрузки",
+        "isDangerous": false
+      },
+      {
+        "name": "Все лимиты",
+        "command": "ulimit -a",
+        "description": "Все лимиты",
+        "isDangerous": false
+      },
+      {
+        "name": "Лимит файлов",
+        "command": "ulimit -n",
+        "description": "Лимит файлов",
+        "isDangerous": false
+      },
+      {
+        "name": "Лимиты процесса",
+        "command": "cat /proc/PID/limits",
+        "description": "Лимиты процесса",
+        "isDangerous": false
+      },
+      {
+        "name": "Версия cgroups",
+        "command": "stat -fc %T /sys/fs/cgroup",
+        "description": "Версия cgroups",
+        "isDangerous": false
+      },
+      {
+        "name": "Cgroup процесса",
+        "command": "cat /proc/PID/cgroup",
+        "description": "Cgroup процесса",
+        "isDangerous": false
+      },
+      {
+        "name": "Capabilities файла",
+        "command": "getcap /usr/bin/ping",
+        "description": "Capabilities файла",
+        "isDangerous": false
+      },
+      {
+        "name": "Capabilities процесса",
+        "command": "getpcaps PID",
+        "description": "Capabilities процесса",
+        "isDangerous": false
+      },
+      {
+        "name": "Порт без root",
+        "command": "sudo setcap cap_net_bind_service=+ep /opt/app/server",
+        "description": "Порт без root",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Безопасность",
+    "icon": "♜",
+    "commands": [
+      {
+        "name": "Проверить SSH-конфиг",
+        "command": "sudo sshd -t",
+        "description": "Проверить SSH-конфиг",
+        "isDangerous": false
+      },
+      {
+        "name": "Итоговые настройки SSH",
+        "command": "sudo sshd -T",
+        "description": "Итоговые настройки SSH",
+        "isDangerous": false
+      },
+      {
+        "name": "Применить SSH-конфиг",
+        "command": "sudo sshd -t && sudo systemctl reload ssh",
+        "description": "Проверьте новый вход до закрытия сессии",
+        "isDangerous": true
+      },
+      {
+        "name": "Fail2ban статус",
+        "command": "sudo fail2ban-client status sshd",
+        "description": "Fail2ban статус",
+        "isDangerous": false
+      },
+      {
+        "name": "Fail2ban разбанить",
+        "command": "sudo fail2ban-client set sshd unbanip 1.2.3.4",
+        "description": "Fail2ban разбанить",
+        "isDangerous": false
+      },
+      {
+        "name": "SUID-файлы",
+        "command": "sudo find / -xdev -perm -4000 -type f 2>/dev/null",
+        "description": "SUID-файлы",
+        "isDangerous": false
+      },
+      {
+        "name": "Запись для всех",
+        "command": "sudo find / -xdev -type f -perm -0002 2>/dev/null",
+        "description": "Запись для всех",
+        "isDangerous": false
+      },
+      {
+        "name": "Пользователи UID 0",
+        "command": "awk -F: '$3 == 0 {print $1}' /etc/passwd",
+        "description": "Пользователи UID 0",
+        "isDangerous": false
+      },
+      {
+        "name": "Пользователи без пароля",
+        "command": "sudo awk -F: '$2 == \"\" {print $1}' /etc/shadow",
+        "description": "Пользователи без пароля",
+        "isDangerous": false
+      },
+      {
+        "name": "Неудачные входы",
+        "command": "sudo lastb | head",
+        "description": "Неудачные входы",
+        "isDangerous": false
+      },
+      {
+        "name": "Ошибки SSH",
+        "command": "sudo journalctl _COMM=sshd | grep -i \"failed\" | tail",
+        "description": "Ошибки SSH",
+        "isDangerous": false
+      },
+      {
+        "name": "Аудит Lynis",
+        "command": "sudo lynis audit system",
+        "description": "Аудит Lynis",
+        "isDangerous": false
+      },
+      {
+        "name": "SELinux режим",
+        "command": "getenforce",
+        "description": "SELinux режим",
+        "isDangerous": false
+      },
+      {
+        "name": "SELinux статус",
+        "command": "sestatus",
+        "description": "SELinux статус",
+        "isDangerous": false
+      },
+      {
+        "name": "SELinux контексты",
+        "command": "ls -Z /var/www",
+        "description": "SELinux контексты",
+        "isDangerous": false
+      },
+      {
+        "name": "Вернуть контексты",
+        "command": "sudo restorecon -Rv /var/www",
+        "description": "Вернуть контексты",
+        "isDangerous": false
+      },
+      {
+        "name": "SELinux отказы",
+        "command": "sudo ausearch -m avc -ts recent",
+        "description": "SELinux отказы",
+        "isDangerous": false
+      },
+      {
+        "name": "AppArmor статус",
+        "command": "sudo aa-status",
+        "description": "AppArmor статус",
+        "isDangerous": false
+      },
+      {
+        "name": "Аудит файла",
+        "command": "sudo auditctl -w /etc/passwd -p wa -k passwd_changes",
+        "description": "Аудит файла",
+        "isDangerous": false
+      },
+      {
+        "name": "Зашифровать файл",
+        "command": "gpg -c secret.txt",
+        "description": "Зашифровать файл",
+        "isDangerous": false
+      },
+      {
+        "name": "Проверить SHA-256",
+        "command": "sha256sum -c SHA256SUMS",
+        "description": "Проверить SHA-256",
+        "isDangerous": false
+      },
+      {
+        "name": "Проверить подпись",
+        "command": "gpg --verify file.sig file",
+        "description": "Проверить подпись",
+        "isDangerous": false
+      },
+      {
+        "name": "Сгенерировать пароль",
+        "command": "openssl rand -base64 24",
+        "description": "Сгенерировать пароль",
+        "isDangerous": false
+      },
+      {
+        "name": "Права authorized_keys",
+        "command": "chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys",
+        "description": "Права authorized_keys",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Docker и Podman",
+    "icon": "▱",
+    "commands": [
+      {
+        "name": "Запустить nginx",
+        "command": "docker run -d --name web -p 8080:80 nginx",
+        "description": "Запустить nginx",
+        "isDangerous": false
+      },
+      {
+        "name": "Временный контейнер",
+        "command": "docker run --rm -it ubuntu bash",
+        "description": "Временный контейнер",
+        "isDangerous": false
+      },
+      {
+        "name": "Все контейнеры",
+        "command": "docker ps -a",
+        "description": "Все контейнеры",
+        "isDangerous": false
+      },
+      {
+        "name": "Логи контейнера",
+        "command": "docker logs -f --tail 100 web",
+        "description": "Логи контейнера",
+        "isDangerous": false
+      },
+      {
+        "name": "Зайти внутрь",
+        "command": "docker exec -it web sh",
+        "description": "Зайти внутрь",
+        "isDangerous": false
+      },
+      {
+        "name": "Инспекция",
+        "command": "docker inspect web",
+        "description": "Инспекция",
+        "isDangerous": false
+      },
+      {
+        "name": "Ресурсы",
+        "command": "docker stats",
+        "description": "Ресурсы",
+        "isDangerous": false
+      },
+      {
+        "name": "Копировать из контейнера",
+        "command": "docker cp web:/etc/nginx/nginx.conf .",
+        "description": "Копировать из контейнера",
+        "isDangerous": false
+      },
+      {
+        "name": "Собрать образ",
+        "command": "docker build -t myapp:1.0 .",
+        "description": "Собрать образ",
+        "isDangerous": false
+      },
+      {
+        "name": "Образы",
+        "command": "docker images",
+        "description": "Образы",
+        "isDangerous": false
+      },
+      {
+        "name": "Тома",
+        "command": "docker volume ls",
+        "description": "Тома",
+        "isDangerous": false
+      },
+      {
+        "name": "Место Docker",
+        "command": "docker system df",
+        "description": "Место Docker",
+        "isDangerous": false
+      },
+      {
+        "name": "Очистить Docker",
+        "command": "docker system prune -a",
+        "description": "Удаляет все неиспользуемые объекты",
+        "isDangerous": true
+      },
+      {
+        "name": "Compose: запустить",
+        "command": "docker compose up -d",
+        "description": "Compose: запустить",
+        "isDangerous": false
+      },
+      {
+        "name": "Compose: логи",
+        "command": "docker compose logs -f",
+        "description": "Compose: логи",
+        "isDangerous": false
+      },
+      {
+        "name": "Compose: остановить",
+        "command": "docker compose down",
+        "description": "Compose: остановить",
+        "isDangerous": false
+      },
+      {
+        "name": "Namespaces",
+        "command": "lsns",
+        "description": "Namespaces",
+        "isDangerous": false
+      },
+      {
+        "name": "Сеть контейнера",
+        "command": "sudo nsenter -t PID -n ip a",
+        "description": "Сеть контейнера",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Диагностика",
+    "icon": "✚",
+    "commands": [
+      {
+        "name": "Диск заполнен",
+        "command": "df -h; df -i",
+        "description": "Диск заполнен",
+        "isDangerous": false
+      },
+      {
+        "name": "Удалённые открытые файлы",
+        "command": "sudo lsof +L1",
+        "description": "Удалённые открытые файлы",
+        "isDangerous": false
+      },
+      {
+        "name": "Обнулить большой лог",
+        "command": "sudo truncate -s 0 /var/log/big.log",
+        "description": "Необратимо очищает лог",
+        "isDangerous": true
+      },
+      {
+        "name": "Права на весь путь",
+        "command": "namei -l /path/to/file",
+        "description": "Права на весь путь",
+        "isDangerous": false
+      },
+      {
+        "name": "Точка монтирования",
+        "command": "findmnt -T .",
+        "description": "Точка монтирования",
+        "isDangerous": false
+      },
+      {
+        "name": "Состояние процесса",
+        "command": "ps -o pid,stat,wchan:30,cmd -p PID",
+        "description": "Состояние процесса",
+        "isDangerous": false
+      },
+      {
+        "name": "Стек процесса",
+        "command": "sudo cat /proc/PID/stack",
+        "description": "Стек процесса",
+        "isDangerous": false
+      },
+      {
+        "name": "Родитель процесса",
+        "command": "ps -o ppid= -p PID",
+        "description": "Родитель процесса",
+        "isDangerous": false
+      },
+      {
+        "name": "Продолжить процесс",
+        "command": "kill -CONT PID",
+        "description": "Продолжить процесс",
+        "isDangerous": false
+      },
+      {
+        "name": "Служба: диагностика",
+        "command": "systemctl status myapp; journalctl -u myapp -b --no-pager | tail -50",
+        "description": "Служба: диагностика",
+        "isDangerous": false
+      },
+      {
+        "name": "Проверить nginx",
+        "command": "sudo nginx -t",
+        "description": "Проверить nginx",
+        "isDangerous": false
+      },
+      {
+        "name": "Восстановить APT",
+        "command": "sudo dpkg --configure -a && sudo apt -f install",
+        "description": "Восстановить APT",
+        "isDangerous": false
+      },
+      {
+        "name": "Перестроить RPM",
+        "command": "sudo rpm --rebuilddb",
+        "description": "Перестроить RPM",
+        "isDangerous": false
+      },
+      {
+        "name": "Inode по папкам",
+        "command": "sudo du --inodes -x / 2>/dev/null | sort -n | tail",
+        "description": "Inode по папкам",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Восстановление",
+    "icon": "↻",
+    "commands": [
+      {
+        "name": "Перемонтировать корень",
+        "command": "mount -o remount,rw /",
+        "description": "Используется при восстановлении",
+        "isDangerous": true
+      },
+      {
+        "name": "Найти корневой раздел",
+        "command": "lsblk -f",
+        "description": "Найти корневой раздел",
+        "isDangerous": false
+      },
+      {
+        "name": "Chroot в систему",
+        "command": "sudo chroot /mnt",
+        "description": "Запускайте только после подготовки /mnt",
+        "isDangerous": true
+      },
+      {
+        "name": "Переустановить GRUB",
+        "command": "sudo grub-install /dev/sda && sudo update-grub",
+        "description": "Перезаписывает загрузчик",
+        "isDangerous": true
+      },
+      {
+        "name": "Переустановить ядро Ubuntu",
+        "command": "sudo apt install --reinstall linux-image-generic",
+        "description": "Переустановить ядро Ubuntu",
+        "isDangerous": false
+      },
+      {
+        "name": "SysRq статус",
+        "command": "cat /proc/sys/kernel/sysrq",
+        "description": "SysRq статус",
+        "isDangerous": false
+      },
+      {
+        "name": "SysRq sync",
+        "command": "echo s | sudo tee /proc/sysrq-trigger",
+        "description": "Сбрасывает буферы на диск",
+        "isDangerous": true
+      },
+      {
+        "name": "Восстановить открытый файл",
+        "command": "cp /proc/PID/fd/N ~/restored",
+        "description": "Восстановить открытый файл",
+        "isDangerous": false
+      }
+    ]
+  },
+  {
+    "name": "Опасные команды",
+    "icon": "!",
+    "commands": [
+      {
+        "name": "Удалить всю систему",
+        "command": "rm -rf /",
+        "description": "КАТАСТРОФИЧЕСКИ ОПАСНО: удаляет систему",
+        "isDangerous": true
+      },
+      {
+        "name": "Удалить домашнюю папку",
+        "command": "rm -rf ~",
+        "description": "КАТАСТРОФИЧЕСКИ ОПАСНО: удаляет файлы пользователя",
+        "isDangerous": true
+      },
+      {
+        "name": "Затереть диск нулями",
+        "command": "dd if=/dev/zero of=/dev/sda",
+        "description": "КАТАСТРОФИЧЕСКИ ОПАСНО: уничтожает диск",
+        "isDangerous": true
+      },
+      {
+        "name": "Форматировать диск",
+        "command": "mkfs.ext4 /dev/sda",
+        "description": "КАТАСТРОФИЧЕСКИ ОПАСНО: уничтожает данные",
+        "isDangerous": true
+      },
+      {
+        "name": "Открыть все права",
+        "command": "chmod -R 777 /",
+        "description": "ОПАСНО: ломает безопасность системы",
+        "isDangerous": true
+      },
+      {
+        "name": "Fork-бомба",
+        "command": ":(){ :|:& };:",
+        "description": "ОПАСНО: исчерпывает процессы и завешивает систему",
+        "isDangerous": true
+      },
+      {
+        "name": "Запустить скрипт из сети",
+        "command": "curl URL | sudo bash",
+        "description": "ОПАСНО: запускает непроверенный код от root",
+        "isDangerous": true
+      },
+      {
+        "name": "Обнулить passwd",
+        "command": "> /etc/passwd",
+        "description": "ОПАСНО: уничтожает список пользователей",
+        "isDangerous": true
+      }
+    ]
+  }
+]

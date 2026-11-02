@@ -1,0 +1,73 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:xaml="https://github.com/avaloniaui/avaloniaedit"
+             x:Class="LazyLinuxSSH.Desktop.Controls.FileEditorView">
+  <Grid RowDefinitions="Auto,Auto,*,Auto" Background="{DynamicResource TerminalBackground}">
+    <Border Grid.Row="0" Padding="12,9" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <Border Grid.Column="0" Width="34" Height="34" CornerRadius="7" Margin="0,0,10,0"
+                Background="{DynamicResource ElevatedBackground}" VerticalAlignment="Center">
+          <TextBlock Text="&lt;/&gt;" FontFamily="Cascadia Code, Consolas, monospace" FontSize="14"
+                     HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Border>
+        <StackPanel Grid.Column="1" VerticalAlignment="Center" MinWidth="0">
+          <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis" />
+          <TextBlock Text="{Binding FilePath}" Classes="mono muted" FontSize="10" TextTrimming="CharacterEllipsis" />
+        </StackPanel>
+        <Button Grid.Column="2" Content="×" Command="{Binding CloseCommand}" Classes="ghost compact close"
+                Width="32" ToolTip.Tip="{DynamicResource 'Закрыть редактор'}" AutomationProperties.Name="{DynamicResource 'Закрыть редактор'}" />
+      </Grid>
+    </Border>
+
+    <Border Grid.Row="1" Padding="10,7" Background="{DynamicResource PanelBackground}"
+            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
+      <StackPanel Orientation="Horizontal" Spacing="7">
+        <Button Content="{DynamicResource 'Сохранить'}" Command="{Binding SaveCommand}" Classes="primary editor-save"
+                IsEnabled="{Binding IsNotBusy}" ToolTip.Tip="{DynamicResource 'Сохранить файл (Ctrl+S)'}" />
+        <Button Command="{Binding CopyCommand}" Classes="editor-tool" IsEnabled="{Binding IsNotBusy}"
+                ToolTip.Tip="{DynamicResource 'Скопировать всё содержимое'}" AutomationProperties.Name="{DynamicResource 'Копировать файл'}">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <TextBlock Text="⧉" FontSize="15" />
+            <TextBlock Text="{DynamicResource 'Копировать'}" />
+          </StackPanel>
+        </Button>
+        <Button Command="{Binding DownloadCommand}" Classes="editor-tool" IsEnabled="{Binding IsNotBusy}"
+                ToolTip.Tip="{Binding DownloadToolTip}" AutomationProperties.Name="{DynamicResource 'Скачать файл'}">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <TextBlock Text="⇩" FontSize="16" IsVisible="{Binding !IsDownloaded}" />
+            <TextBlock Text="✓" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"
+                       IsVisible="{Binding IsDownloaded}" />
+            <TextBlock Text="{DynamicResource 'Скачать'}" />
+          </StackPanel>
+        </Button>
+      </StackPanel>
+    </Border>
+
+    <Grid Grid.Row="2">
+      <xaml:TextEditor Name="FileEditor"
+                       Focusable="True"
+                       ShowLineNumbers="True"
+                       FontFamily="Cascadia Code, JetBrains Mono, Consolas, monospace"
+                       FontSize="13"
+                       Padding="10,8"
+                       Background="Transparent"
+                       Foreground="{DynamicResource TerminalForeground}"
+                       IsReadOnly="{Binding IsBusy}"
+                       HorizontalScrollBarVisibility="Auto"
+                       VerticalScrollBarVisibility="Auto"
+                       WordWrap="False" />
+      <ProgressBar IsVisible="{Binding IsBusy}" IsIndeterminate="True" Height="3"
+                   VerticalAlignment="Top" Foreground="{DynamicResource AccentBrush}" />
+    </Grid>
+
+    <Border Grid.Row="3" Padding="11,6" Background="{DynamicResource PanelBackground}"
+            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
+      <Grid ColumnDefinitions="*,Auto,Auto">
+        <TextBlock Grid.Column="0" Text="{Binding StatusMessage}" Classes="muted" FontSize="10"
+                   TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+        <TextBlock Grid.Column="1" Text="{Binding CaretLabel}" Classes="muted mono" FontSize="10" Margin="12,0,0,0" />
+        <TextBlock Grid.Column="2" Text="{Binding DocumentLabel}" Classes="muted mono" FontSize="10" Margin="12,0,0,0" />
+      </Grid>
+    </Border>
+  </Grid>
+</UserControl>

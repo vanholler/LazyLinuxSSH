@@ -1,0 +1,80 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="LazyLinuxSSH.Desktop.App"
+             RequestedThemeVariant="Dark">
+  <TrayIcon.Icons>
+    <TrayIcons>
+      <TrayIcon Icon="/Assets/LazyLinuxSSH.ico"
+                ToolTipText="LazyLinuxSSH — рабочее пространство"
+                Clicked="ShowMainWindow"
+                IsVisible="True">
+        <TrayIcon.Menu>
+          <NativeMenu>
+            <NativeMenuItem Header="Открыть LazyLinuxSSH" Click="ShowMainWindow" />
+            <NativeMenuItem Header="Выйти полностью" Click="ExitApplication" />
+          </NativeMenu>
+        </TrayIcon.Menu>
+      </TrayIcon>
+    </TrayIcons>
+  </TrayIcon.Icons>
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Dark">
+          <Color x:Key="WindowColor">#0D141D</Color>
+          <Color x:Key="TitleBarColor">#101821</Color>
+          <Color x:Key="WorkspaceColor">#0D1620</Color>
+          <Color x:Key="PanelColor">#121B26</Color>
+          <Color x:Key="ElevatedColor">#1C2430</Color>
+          <Color x:Key="HoverColor">#242F3D</Color>
+          <Color x:Key="BorderColor">#2A3543</Color>
+          <Color x:Key="TextColor">#E7ECF3</Color>
+          <Color x:Key="MutedColor">#98A2B3</Color>
+          <Color x:Key="AccentColor">#72A5FF</Color>
+          <Color x:Key="AccentTextColor">#0D1828</Color>
+          <Color x:Key="DangerColor">#FF7A88</Color>
+          <Color x:Key="SuccessColor">#5DD6A2</Color>
+          <Color x:Key="TerminalColor">#0C1118</Color>
+          <Color x:Key="TerminalTextColor">#D8E0EA</Color>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Light">
+          <Color x:Key="WindowColor">#EDF1F5</Color>
+          <Color x:Key="TitleBarColor">#E3E9F0</Color>
+          <Color x:Key="WorkspaceColor">#F1F4F8</Color>
+          <Color x:Key="PanelColor">#F7F9FB</Color>
+          <Color x:Key="ElevatedColor">#FCFDFE</Color>
+          <Color x:Key="HoverColor">#E3E9F0</Color>
+          <Color x:Key="BorderColor">#D4DCE5</Color>
+          <Color x:Key="TextColor">#17202B</Color>
+          <Color x:Key="MutedColor">#5D6978</Color>
+          <Color x:Key="AccentColor">#2563D9</Color>
+          <Color x:Key="AccentTextColor">#F5F8FF</Color>
+          <Color x:Key="DangerColor">#B42335</Color>
+          <Color x:Key="SuccessColor">#087A55</Color>
+          <Color x:Key="TerminalColor">#F7F9FC</Color>
+          <Color x:Key="TerminalTextColor">#263244</Color>
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+      <SolidColorBrush x:Key="WindowBackground" Color="{DynamicResource WindowColor}" />
+      <SolidColorBrush x:Key="PanelBackground" Color="{DynamicResource PanelColor}" />
+      <SolidColorBrush x:Key="TitleBarBackground" Color="{DynamicResource TitleBarColor}" />
+      <SolidColorBrush x:Key="WorkspaceBackground" Color="{DynamicResource WorkspaceColor}" />
+      <SolidColorBrush x:Key="ElevatedBackground" Color="{DynamicResource ElevatedColor}" />
+      <SolidColorBrush x:Key="HoverBackground" Color="{DynamicResource HoverColor}" />
+      <SolidColorBrush x:Key="BorderBrush" Color="{DynamicResource BorderColor}" />
+      <SolidColorBrush x:Key="TextBrush" Color="{DynamicResource TextColor}" />
+      <SolidColorBrush x:Key="MutedBrush" Color="{DynamicResource MutedColor}" />
+      <SolidColorBrush x:Key="AccentBrush" Color="{DynamicResource AccentColor}" />
+      <SolidColorBrush x:Key="AccentTextBrush" Color="{DynamicResource AccentTextColor}" />
+      <SolidColorBrush x:Key="DangerBrush" Color="{DynamicResource DangerColor}" />
+      <SolidColorBrush x:Key="SuccessBrush" Color="{DynamicResource SuccessColor}" />
+      <SolidColorBrush x:Key="TerminalBackground" Color="{DynamicResource TerminalColor}" />
+      <SolidColorBrush x:Key="TerminalForeground" Color="{DynamicResource TerminalTextColor}" />
+    </ResourceDictionary>
+  </Application.Resources>
+  <Application.Styles>
+    <FluentTheme />
+    <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
+    <StyleInclude Source="avares://LazyLinuxSSH.Desktop/Styles/Controls.axaml" />
+  </Application.Styles>
+</Application>

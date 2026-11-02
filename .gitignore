@@ -1,0 +1,80 @@
+# .NET build output
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+artifacts/
+publish/
+*.dll
+*.exe
+*.pdb
+*.cache
+
+# Visual Studio, Rider and other IDEs
+.vs/
+.idea/
+.vscode/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.ncrunch*
+*.ReSharper*
+_ReSharper*/
+
+# Tests, logs and diagnostics
+TestResults/
+test-results/
+coverage/
+*.trx
+*.coverage
+*.coveragexml
+*.log
+*.tmp
+*.temp
+
+# Application data: never commit real profiles, history or scripts
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+connections.db*
+ui-preferences.json
+
+# Secrets, credentials and private keys
+.vault-key
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+*.snk
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+*secrets*.json
+!*secrets*.example.json
+
+# NuGet and package manager caches
+*.nupkg
+*.snupkg
+packages/
+node_modules/
+
+# OS metadata
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Backup and merge files
+*.bak
+*.orig
+*.rej
+*~

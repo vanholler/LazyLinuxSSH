@@ -1,0 +1,755 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:LazyLinuxSSH.Desktop.Controls"
+        x:Class="LazyLinuxSSH.Desktop.Views.MainWindow"
+        x:Name="RootWindow"
+        Title="LazyLinuxSSH"
+        Width="1440" Height="900"
+        MinWidth="1040" MinHeight="680"
+        WindowStartupLocation="CenterScreen"
+        SystemDecorations="BorderOnly"
+        Icon="/Assets/LazyLinuxSSH.ico"
+        Background="{DynamicResource WindowBackground}">
+  <Grid RowDefinitions="28,52,*,28">
+    <!-- Custom window title bar -->
+    <Border Grid.Row="0" x:Name="WindowTitleBar" Background="{DynamicResource TitleBarBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Orientation="Horizontal" Spacing="9" Margin="12,0" VerticalAlignment="Center">
+          <Border Width="20" Height="20" CornerRadius="4" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1">
+            <TextBlock Text="›_" Foreground="{DynamicResource AccentBrush}" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </Border>
+          <TextBlock Text="LazyLinuxSSH" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
+        </StackPanel>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="2" Margin="8,0">
+          <Button Content="—" Classes="window-button" Click="MinimizeWindow" ToolTip.Tip="{DynamicResource 'Свернуть'}" />
+          <Button Content="□" Classes="window-button" Click="MaximizeWindow" ToolTip.Tip="{DynamicResource 'Развернуть'}" />
+          <Button Content="×" Classes="window-button window-close" Click="CloseWindow" ToolTip.Tip="{DynamicResource 'Закрыть'}" />
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- Brand, workspace tabs and global actions -->
+    <Border Grid.Row="1" Background="{DynamicResource PanelBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <Border Grid.Column="0" Width="{Binding LeftPanelWidth}">
+          <Grid>
+          <Grid IsVisible="{Binding IsLeftPanelVisible}" ColumnDefinitions="Auto,*,Auto" Margin="12,0,8,0">
+            <Border Grid.Column="0" Width="32" Height="32" CornerRadius="8" Background="{DynamicResource ElevatedBackground}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1.2" VerticalAlignment="Center">
+              <TextBlock Text="›_" FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="0" Margin="10,0">
+              <TextBlock Text="LazyLinuxSSH" FontWeight="Bold" FontSize="16" />
+              <TextBlock Text="SERVER WORKSPACE" FontSize="8" Classes="muted" />
+            </StackPanel>
+            <Button Grid.Column="2" Classes="sidebar-toggle" Command="{Binding ToggleLeftPanelCommand}" ToolTip.Tip="{Binding LeftPanelButtonLabel}" AutomationProperties.Name="{DynamicResource 'Свернуть панель подключений'}" VerticalAlignment="Center">
+              <StackPanel Width="17" Spacing="4">
+                <Grid ColumnDefinitions="4,*" ColumnSpacing="4"><Ellipse Width="4" Height="4" Fill="{DynamicResource TextBrush}" /><Border Grid.Column="1" Height="4" CornerRadius="2" Background="{DynamicResource TextBrush}" /></Grid>
+                <Grid ColumnDefinitions="4,*" ColumnSpacing="4"><Ellipse Width="4" Height="4" Fill="{DynamicResource TextBrush}" /><Border Grid.Column="1" Height="4" CornerRadius="2" Background="{DynamicResource TextBrush}" /></Grid>
+                <Grid ColumnDefinitions="4,*" ColumnSpacing="4"><Ellipse Width="4" Height="4" Fill="{DynamicResource TextBrush}" /><Border Grid.Column="1" Height="4" CornerRadius="2" Background="{DynamicResource TextBrush}" /></Grid>
+              </StackPanel>
+            </Button>
+          </Grid>
+          <Button IsVisible="{Binding IsLeftPanelCollapsed}" Classes="sidebar-toggle" Command="{Binding ToggleLeftPanelCommand}" ToolTip.Tip="{Binding LeftPanelButtonLabel}" AutomationProperties.Name="{DynamicResource 'Развернуть панель подключений'}" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel Width="19" Spacing="5">
+              <Grid ColumnDefinitions="5,*" ColumnSpacing="5"><Ellipse Width="5" Height="5" Fill="{DynamicResource TextBrush}" /><Border Grid.Column="1" Height="5" CornerRadius="2.5" Background="{DynamicResource TextBrush}" /></Grid>
+              <Grid ColumnDefinitions="5,*" ColumnSpacing="5"><Ellipse Width="5" Height="5" Fill="{DynamicResource TextBrush}" /><Border Grid.Column="1" Height="5" CornerRadius="2.5" Background="{DynamicResource TextBrush}" /></Grid>
+              <Grid ColumnDefinitions="5,*" ColumnSpacing="5"><Ellipse Width="5" Height="5" Fill="{DynamicResource TextBrush}" /><Border Grid.Column="1" Height="5" CornerRadius="2.5" Background="{DynamicResource TextBrush}" /></Grid>
+            </StackPanel>
+          </Button>
+          </Grid>
+        </Border>
+
+        <ScrollViewer Grid.Column="1" Margin="0,0,10,0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+            <ItemsControl ItemsSource="{Binding Tabs}" VerticalAlignment="Bottom">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border Classes="workspace-tab" Classes.active="{Binding IsActive}">
+                    <Grid ColumnDefinitions="Auto,Auto">
+                      <Button Grid.Column="0" Classes="tab-main" Command="{Binding ActivateCommand}" MinWidth="108" MaxWidth="205" HorizontalContentAlignment="Left">
+                        <StackPanel Orientation="Horizontal" Spacing="9">
+                          <TextBlock Text="{Binding Icon}" Classes="muted" FontSize="14" />
+                          <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" MaxWidth="145" VerticalAlignment="Center" />
+                        </StackPanel>
+                      </Button>
+                      <Button Grid.Column="1" Content="×" Classes="tab-close" Command="{Binding CloseCommand}" ToolTip.Tip="{DynamicResource 'Закрыть вкладку'}" />
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <Button Content="＋" Classes="new-tab" Command="{Binding OpenNewTabCommand}" ToolTip.Tip="{DynamicResource 'Новая вкладка'}" VerticalAlignment="Center" />
+          </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="5" Margin="0,0,14,0" VerticalAlignment="Center">
+          <Border Classes="layout-switcher">
+            <StackPanel Orientation="Horizontal" Spacing="2">
+              <Button Classes="layout-button" Classes.selected="{Binding IsSingleLayout}" Command="{Binding SetLayoutCommand}" CommandParameter="0" ToolTip.Tip="{DynamicResource 'Один терминал с вкладками'}">
+                <StackPanel Orientation="Horizontal" Spacing="5"><TextBlock Text="▣" /><TextBlock Text="1×1" /></StackPanel>
+              </Button>
+              <Button Classes="layout-button" Classes.selected="{Binding IsGrid22Layout}" Command="{Binding SetLayoutCommand}" CommandParameter="1" ToolTip.Tip="{DynamicResource 'Сетка 2×2'}">
+                <StackPanel Orientation="Horizontal" Spacing="5"><TextBlock Text="▦" /><TextBlock Text="2×2" /></StackPanel>
+              </Button>
+              <Button Classes="layout-button" Classes.selected="{Binding IsGrid44Layout}" Command="{Binding SetLayoutCommand}" CommandParameter="2" ToolTip.Tip="{DynamicResource 'Сетка 4×4'}">
+                <StackPanel Orientation="Horizontal" Spacing="5"><TextBlock Text="▤" /><TextBlock Text="4×4" /></StackPanel>
+              </Button>
+            </StackPanel>
+          </Border>
+          <Separator Width="1" Height="25" Margin="5,0" />
+          <Button Classes="toolbar-icon theme-toggle" Command="{Binding ToggleThemeCommand}" ToolTip.Tip="{Binding ThemeButtonLabel}" AutomationProperties.Name="{DynamicResource 'Сменить тему'}">
+            <Grid Width="22" Height="22" Classes="theme-icon" Classes.dark="{Binding IsDarkTheme}">
+              <TextBlock Classes="theme-moon" Text="☾" FontSize="21" HorizontalAlignment="Center" VerticalAlignment="Center" />
+              <TextBlock Classes="theme-sun" Text="☀" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Grid>
+          </Button>
+          <Button Content="⚙" Classes="toolbar-icon" Command="{Binding OpenSettingsCommand}" ToolTip.Tip="{DynamicResource 'Настройки и шаблоны команд'}" AutomationProperties.Name="{DynamicResource 'Настройки'}" />
+          <Button Content="◷" Classes="toolbar-icon" Command="{Binding OpenHistoryCommand}" ToolTip.Tip="{DynamicResource 'История команд'}" AutomationProperties.Name="{DynamicResource 'История команд'}" />
+          <Button Content="›_" Classes="toolbar-icon" Command="{Binding ToggleRightPanelCommand}" ToolTip.Tip="{DynamicResource 'Быстрые команды'}" />
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto">
+      <!-- Connection manager -->
+      <Border Grid.Column="0" Width="{Binding LeftPanelWidth}" Background="{DynamicResource PanelBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0">
+        <Grid>
+        <Grid RowDefinitions="Auto,Auto,*,Auto" IsVisible="{Binding IsLeftPanelVisible}">
+          <DockPanel Grid.Row="0" Margin="16,18,14,14">
+            <Button DockPanel.Dock="Right" Classes="primary add-connection" Command="{Binding NewConnectionCommand}" ToolTip.Tip="{DynamicResource 'Новое подключение'}">
+              <Path Width="16" Height="16" Data="M8,2 L8,14 M2,8 L14,8" Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="1.8" StrokeLineCap="Round" />
+            </Button>
+            <TextBlock Text="{DynamicResource 'Подключения'}" FontWeight="SemiBold" FontSize="17" VerticalAlignment="Center" />
+          </DockPanel>
+          <Grid Grid.Row="1" Margin="14,0,14,14">
+            <TextBox x:Name="ServerSearchBox" Classes="search-box" Text="{Binding ServerSearchText}" Watermark="{DynamicResource 'Поиск серверов'}" Padding="36,8,52,8" />
+            <TextBlock Text="⌕" Classes="muted" FontSize="21" Margin="11,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" IsHitTestVisible="False" />
+            <TextBlock Text="Ctrl K" Classes="search-hint" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" IsHitTestVisible="False" />
+          </Grid>
+          <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="10,0,8,12">
+              <ItemsControl ItemsSource="{Binding VisibleGroups}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <StackPanel Spacing="2" Margin="0,0,0,9">
+                      <Button Classes="group-header" Command="{Binding ToggleExpandedCommand}">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="7">
+                          <Grid Grid.Column="0" Width="16" Height="16" IsVisible="{Binding HasConnections}">
+                            <Path Width="12" Height="12" Data="M3,4.5 L6,7.5 L9,4.5" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.6" StrokeLineCap="Round" RenderTransformOrigin="50%,50%">
+                              <Path.RenderTransform><RotateTransform Angle="{Binding ChevronAngle}" /></Path.RenderTransform>
+                            </Path>
+                          </Grid>
+                          <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                          <TextBlock Grid.Column="2" Text="{Binding Connections.Count}" Classes="group-count" VerticalAlignment="Center" />
+                        </Grid>
+                      </Button>
+                      <ItemsControl ItemsSource="{Binding Connections}" IsVisible="{Binding IsExpanded}">
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate>
+                            <Grid Classes="profile-row" ColumnDefinitions="*,Auto,Auto" Margin="0,1">
+                              <Button Grid.Column="0" Classes="profile-connect" Command="{Binding DataContext.ConnectCommand, ElementName=RootWindow}" CommandParameter="{Binding}" ToolTip.Tip="{DynamicResource 'Открыть в новой вкладке'}">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="9">
+                                  <Ellipse Grid.Column="0" Width="7" Height="7" Fill="#69BE78" VerticalAlignment="Center" />
+                                  <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Classes="muted mono" FontSize="10" TextTrimming="CharacterEllipsis">
+                                      <TextBlock.Text><MultiBinding StringFormat="{}{0}:{1}"><Binding Path="Host" /><Binding Path="Port" /></MultiBinding></TextBlock.Text>
+                                    </TextBlock>
+                                  </StackPanel>
+                                </Grid>
+                              </Button>
+                              <Button Grid.Column="1" Content="✎" Classes="profile-action" Command="{Binding DataContext.EditConnectionCommand, ElementName=RootWindow}" CommandParameter="{Binding}" ToolTip.Tip="{DynamicResource 'Изменить'}" />
+                              <Button Grid.Column="2" Content="⋮" Classes="profile-action" Command="{Binding DataContext.RequestDeleteConnectionCommand, ElementName=RootWindow}" CommandParameter="{Binding}" ToolTip.Tip="{DynamicResource 'Удалить подключение'}" />
+                            </Grid>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                    </StackPanel>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <StackPanel IsVisible="{Binding ShowCreateConnection}" Margin="12,28" Spacing="10">
+                <TextBlock Text="{DynamicResource 'Серверов пока нет'}" TextAlignment="Center" FontWeight="SemiBold" />
+                <TextBlock Text="{DynamicResource 'Добавьте первое SSH-подключение.'}" Classes="muted" FontSize="11" TextAlignment="Center" TextWrapping="Wrap" />
+              </StackPanel>
+            </StackPanel>
+          </ScrollViewer>
+          <Border Grid.Row="3" Padding="14,8,14,14">
+            <Button Classes="new-connection-wide" Command="{Binding NewConnectionCommand}" HorizontalAlignment="Center">
+              <StackPanel Orientation="Horizontal" Spacing="9">
+                <Path Width="15" Height="15" Data="M7.5,2 L7.5,13 M2,7.5 L13,7.5" Stroke="{DynamicResource AccentBrush}" StrokeThickness="1.7" StrokeLineCap="Round" VerticalAlignment="Center" />
+                <TextBlock Text="{DynamicResource 'Новое подключение'}" FontFamily="Inter, Segoe UI, Noto Sans, sans-serif" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+          </Border>
+        </Grid>
+        <StackPanel IsVisible="{Binding IsLeftPanelCollapsed}" Margin="10,18,10,12" Spacing="12">
+          <Button Classes="collapsed-sidebar-item" Content="▤" Command="{Binding ToggleLeftPanelCommand}" ToolTip.Tip="{DynamicResource 'Показать подключения'}" />
+          <Button Classes="collapsed-sidebar-item primary" Command="{Binding NewConnectionCommand}" ToolTip.Tip="{DynamicResource 'Новое подключение'}">
+            <Path Width="17" Height="17" Data="M8.5,2 L8.5,15 M2,8.5 L15,8.5" Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="1.9" StrokeLineCap="Round" />
+          </Button>
+        </StackPanel>
+        </Grid>
+      </Border>
+
+      <!-- Start, terminal and history workspace -->
+      <Grid Grid.Column="1" Background="{DynamicResource WorkspaceBackground}">
+        <!-- Start page -->
+        <ScrollViewer IsVisible="{Binding IsStartTabActive}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+          <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="590" Margin="40" Spacing="0">
+            <Grid Width="210" Height="170" Margin="0,0,0,24">
+              <Border Width="142" Height="112" CornerRadius="9" HorizontalAlignment="Left" VerticalAlignment="Top" BorderBrush="#778391" BorderThickness="2" Margin="10,4,0,0">
+                <Grid RowDefinitions="24,*">
+                  <Border Grid.Row="0" BorderBrush="#778391" BorderThickness="0,0,0,2">
+                    <StackPanel Orientation="Horizontal" Spacing="5" Margin="10,0" VerticalAlignment="Center">
+                      <Ellipse Width="5" Height="5" Fill="#98A2B3" /><Ellipse Width="5" Height="5" Fill="#98A2B3" /><Ellipse Width="5" Height="5" Fill="#98A2B3" />
+                    </StackPanel>
+                  </Border>
+                  <TextBlock Grid.Row="1" Text="›_" FontSize="40" Foreground="#98A2B3" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Grid>
+              </Border>
+              <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" Spacing="5" Margin="0,0,0,8">
+                <Border Width="74" Height="34" CornerRadius="6" Background="{DynamicResource PanelBackground}" BorderBrush="#778391" BorderThickness="2"><Grid ColumnDefinitions="*,Auto" Margin="12,0"><Border Width="28" Height="3" Background="#778391" /><Ellipse Grid.Column="1" Width="7" Height="7" Fill="{DynamicResource AccentBrush}" /></Grid></Border>
+                <Border Width="74" Height="34" CornerRadius="6" Background="{DynamicResource PanelBackground}" BorderBrush="#778391" BorderThickness="2"><Grid ColumnDefinitions="*,Auto" Margin="12,0"><Border Width="28" Height="3" Background="#778391" /><Ellipse Grid.Column="1" Width="7" Height="7" Fill="#778391" /></Grid></Border>
+                <Border Width="74" Height="34" CornerRadius="6" Background="{DynamicResource PanelBackground}" BorderBrush="#778391" BorderThickness="2"><Grid ColumnDefinitions="*,Auto" Margin="12,0"><Border Width="28" Height="3" Background="#778391" /><Ellipse Grid.Column="1" Width="7" Height="7" Fill="#778391" /></Grid></Border>
+              </StackPanel>
+            </Grid>
+            <TextBlock Text="{DynamicResource 'Ваши серверы — в одном рабочем пространстве'}" FontSize="27" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap" LineHeight="38" />
+            <TextBlock Text="{Binding HomeDescription}" Classes="muted" TextAlignment="Center" TextWrapping="Wrap" FontSize="14" LineHeight="23" Margin="0,18,0,28" MaxWidth="510" />
+            <Button Content="{DynamicResource 'Создать подключение'}" Classes="primary start-primary" IsVisible="{Binding ShowCreateConnection}" Command="{Binding NewConnectionCommand}" />
+            <Button x:Name="StartConnectionButton" Classes="primary start-primary" IsVisible="{Binding HasConnections}" ToolTip.Tip="{DynamicResource 'Выбрать сохранённый сервер'}">
+              <StackPanel Orientation="Horizontal" Spacing="12">
+                <TextBlock Text="›_" FontSize="18" VerticalAlignment="Center" />
+                <TextBlock Text="{DynamicResource 'Подключиться'}" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <Path Width="12" Height="12" Data="M3,4.5 L6,7.5 L9,4.5" Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="1.6" StrokeLineCap="Round" VerticalAlignment="Center" />
+              </StackPanel>
+              <Button.Flyout>
+                <Flyout Placement="BottomEdgeAlignedLeft">
+                  <Border Classes="server-picker">
+                    <StackPanel Spacing="10">
+                      <StackPanel Spacing="3">
+                        <TextBlock Text="{DynamicResource 'Подключение к серверу'}" FontSize="16" FontWeight="SemiBold" />
+                        <TextBlock Text="{DynamicResource 'Выберите сохранённое SSH-подключение'}" Classes="muted" FontSize="11" />
+                      </StackPanel>
+                      <ScrollViewer MaxHeight="330" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding SavedConnections}">
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                              <Button Classes="server-picker-item" Click="StartServerPicked">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="11">
+                                  <Border Grid.Column="0" Width="32" Height="32" CornerRadius="8" Background="{DynamicResource HoverBackground}">
+                                    <TextBlock Text="›_" Foreground="{DynamicResource AccentBrush}" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                  </Border>
+                                  <StackPanel Grid.Column="1" Spacing="3" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Classes="muted mono" FontSize="10" TextTrimming="CharacterEllipsis">
+                                      <TextBlock.Text><MultiBinding StringFormat="{}{0}@{1}:{2}"><Binding Path="Username" /><Binding Path="Host" /><Binding Path="Port" /></MultiBinding></TextBlock.Text>
+                                    </TextBlock>
+                                  </StackPanel>
+                                  <TextBlock Grid.Column="2" Text="›" Classes="muted" FontSize="20" VerticalAlignment="Center" />
+                                </Grid>
+                              </Button>
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                      </ScrollViewer>
+                      <TextBlock Text="{DynamicResource 'Сессия откроется в новой вкладке'}" Classes="muted" FontSize="10" HorizontalAlignment="Center" />
+                    </StackPanel>
+                  </Border>
+                </Flyout>
+              </Button.Flyout>
+            </Button>
+            <Button Content="{DynamicResource '›_   Открыть CMD'}" Classes="start-secondary" Command="{Binding OpenLocalTerminalCommand}" Margin="0,14,0,0" ToolTip.Tip="{DynamicResource 'Открыть терминал локального компьютера'}" />
+            <TextBlock Text="{DynamicResource 'cmd.exe или системный shell откроется прямо в этой вкладке'}" Classes="muted" FontSize="10" Margin="0,12,0,0" TextAlignment="Center" />
+          </StackPanel>
+        </ScrollViewer>
+
+        <!-- Persistent terminal cells: changing the grid never recreates an editor. -->
+        <ItemsControl ItemsSource="{Binding TerminalSlots}" IsVisible="{Binding IsTerminalTabActive}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <UniformGrid Rows="{Binding DataContext.GridRows, ElementName=RootWindow}" Columns="{Binding DataContext.GridColumns, ElementName=RootWindow}" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Margin="1" IsVisible="{Binding IsVisible}">
+                <Grid Background="{DynamicResource TerminalBackground}">
+                  <Grid IsVisible="{Binding HasTerminal}">
+                    <controls:TerminalView DataContext="{Binding Terminal}" />
+                  </Grid>
+                  <Button Classes="empty-grid-slot"
+                          IsVisible="{Binding IsEmpty}"
+                          IsEnabled="{Binding HasAvailableSessions}"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          ToolTip.Tip="{DynamicResource 'Добавить открытый терминал в эту ячейку'}">
+                    <Button.Content>
+                      <StackPanel Spacing="10" HorizontalAlignment="Center">
+                        <Border Classes="empty-grid-plus">
+                          <TextBlock Text="＋" FontSize="26" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <TextBlock Text="{DynamicResource 'Добавить терминал'}" Classes="muted" FontSize="11" HorizontalAlignment="Center" />
+                      </StackPanel>
+                    </Button.Content>
+                    <Button.Flyout>
+                      <Flyout Placement="Bottom" ShowMode="TransientWithDismissOnPointerMoveAway">
+                        <Border Classes="session-picker">
+                          <StackPanel Spacing="6">
+                            <TextBlock Text="{DynamicResource 'Открытые вкладки'}" FontWeight="SemiBold" Margin="4,2,4,4" />
+                            <ItemsControl ItemsSource="{Binding AvailableSessions}">
+                              <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                  <Button Classes="session-picker-item" Command="{Binding SelectCommand}">
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                      <TextBlock Grid.Column="0" Text="›_" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" />
+                                      <StackPanel Grid.Column="1" Spacing="3">
+                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding StateLabel}" Classes="muted" FontSize="10" />
+                                      </StackPanel>
+                                    </Grid>
+                                  </Button>
+                                </DataTemplate>
+                              </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                          </StackPanel>
+                        </Border>
+                      </Flyout>
+                    </Button.Flyout>
+                  </Button>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- Command templates and application settings -->
+        <Grid IsVisible="{Binding IsSettingsTabActive}" RowDefinitions="Auto,Auto,*" Background="{DynamicResource WorkspaceBackground}">
+          <Border Grid.Row="0" Padding="24,20" Background="{DynamicResource PanelBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+              <Border Grid.Column="0" Width="44" Height="44" CornerRadius="10" Background="{DynamicResource ElevatedBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                <TextBlock Text="⚙" FontSize="23" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Border>
+              <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
+                <TextBlock Text="{DynamicResource 'Настройки'}" FontSize="21" FontWeight="SemiBold" />
+                <TextBlock Text="{DynamicResource 'Шаблоны состава панели быстрых команд'}" Classes="muted" FontSize="11" />
+              </StackPanel>
+              <Border Grid.Column="2" Classes="active-template-badge" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <Ellipse Width="7" Height="7" Fill="{DynamicResource AccentBrush}" />
+                  <TextBlock Text="{Binding ActiveTemplateBadge}" FontSize="11" />
+                </StackPanel>
+              </Border>
+            </Grid>
+          </Border>
+          <Grid Grid.Row="1" ColumnDefinitions="210,210" Margin="22,16,22,0" HorizontalAlignment="Left">
+            <Button Grid.Column="0" Classes="settings-section" Classes.selected="{Binding IsTemplatesSettingsActive}" Command="{Binding SetSettingsSectionCommand}" CommandParameter="Templates" Content="{DynamicResource 'Шаблоны'}" />
+            <Button Grid.Column="1" Classes="settings-section" Classes.selected="{Binding IsInterfaceSettingsActive}" Command="{Binding SetSettingsSectionCommand}" CommandParameter="Interface" Content="{DynamicResource 'Интерфейс'}" />
+          </Grid>
+          <Grid Grid.Row="2" ColumnDefinitions="245,*" Margin="20" ColumnSpacing="18" IsVisible="{Binding IsTemplatesSettingsActive}">
+            <Border Grid.Column="0" Classes="settings-panel">
+              <Grid RowDefinitions="Auto,*,Auto">
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="16,16,12,12">
+                  <StackPanel VerticalAlignment="Center" Spacing="3">
+                    <TextBlock Text="{DynamicResource 'Шаблоны'}" FontWeight="SemiBold" FontSize="16" />
+                    <TextBlock Text="{DynamicResource 'Сохраняются на этом ПК'}" Classes="muted" FontSize="10" />
+                  </StackPanel>
+                  <Button Grid.Column="1" Content="＋" Classes="primary add-connection" Command="{Binding NewCommandTemplateCommand}" ToolTip.Tip="{DynamicResource 'Добавить шаблон'}" />
+                </Grid>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                  <ItemsControl ItemsSource="{Binding CommandTemplates}" Margin="10,0,10,10">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Button Classes="template-list-item" Classes.selected="{Binding IsSelected}" Command="{Binding DataContext.SelectCommandTemplateCommand, ElementName=RootWindow}" CommandParameter="{Binding}">
+                          <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                            <Border Grid.Column="0" Width="32" Height="32" CornerRadius="7" Background="{DynamicResource HoverBackground}">
+                              <TextBlock Text="▤" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <StackPanel Grid.Column="1" Spacing="3" VerticalAlignment="Center">
+                              <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                              <TextBlock Text="{Binding Caption}" Classes="muted" FontSize="9" TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                            <TextBlock Grid.Column="2" Text="✓" Foreground="{DynamicResource AccentBrush}" FontWeight="Bold" IsVisible="{Binding IsActive}" VerticalAlignment="Center" />
+                          </Grid>
+                        </Button>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </ScrollViewer>
+                <TextBlock Grid.Row="2" Text="{DynamicResource 'Default всегда содержит весь встроенный каталог. Раздел Custom не входит в шаблоны.'}" Classes="muted" FontSize="10" TextWrapping="Wrap" Margin="16,8,16,16" />
+              </Grid>
+            </Border>
+
+            <Border Grid.Column="1" Classes="settings-panel">
+              <Grid RowDefinitions="Auto,Auto,*,Auto">
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="20,18,20,14" ColumnSpacing="14">
+                  <StackPanel Grid.Column="0" Spacing="7">
+                    <TextBlock Text="{DynamicResource 'Название шаблона'}" FontWeight="SemiBold" />
+                    <TextBox Classes="editor-input template-name-input" Text="{Binding TemplateName}" IsEnabled="{Binding CanEditTemplate}" Watermark="{DynamicResource 'Например, Веб-сервер'}" />
+                  </StackPanel>
+                  <Border Grid.Column="1" Classes="read-only-badge" IsVisible="{Binding IsDefaultTemplate}" VerticalAlignment="Bottom" Margin="0,0,0,3">
+                    <TextBlock Text="{DynamicResource 'Только просмотр'}" Classes="muted" FontSize="10" />
+                  </Border>
+                </Grid>
+                <Grid Grid.Row="1" Margin="20,0,20,12" ColumnDefinitions="*,Auto">
+                  <StackPanel VerticalAlignment="Center" Spacing="3">
+                    <TextBlock Text="{DynamicResource 'Разделы и команды'}" FontWeight="SemiBold" FontSize="15" />
+                    <TextBlock Text="{DynamicResource 'Отметьте раздел целиком или отдельные команды'}" Classes="muted" FontSize="10" />
+                  </StackPanel>
+                  <TextBlock Grid.Column="1" Text="{Binding TemplateSelectionSummary}" Classes="muted" FontSize="11" VerticalAlignment="Center" />
+                </Grid>
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" IsEnabled="{Binding CanEditTemplate}">
+                  <ItemsControl ItemsSource="{Binding TemplateTree}" Margin="16,0,16,14">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Border Classes="template-tree-category">
+                          <Grid RowDefinitions="Auto,Auto">
+                            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8" Margin="10,6">
+                              <CheckBox Grid.Column="0" IsChecked="{Binding IsChecked}" IsThreeState="True" VerticalAlignment="Center" />
+                              <Button Grid.Column="1" Classes="template-category-toggle" Command="{Binding ToggleExpandedCommand}">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                                  <TextBlock Grid.Column="0" Text="{Binding Icon}" Foreground="{DynamicResource AccentBrush}" FontSize="16" VerticalAlignment="Center" />
+                                  <TextBlock Grid.Column="1" Text="{Binding Name}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                  <TextBlock Grid.Column="2" Text="{Binding SelectionLabel}" Classes="muted" FontSize="10" VerticalAlignment="Center" />
+                                </Grid>
+                              </Button>
+                              <Button Grid.Column="2" Classes="template-chevron" Command="{Binding ToggleExpandedCommand}" ToolTip.Tip="{DynamicResource 'Разделы и команды'}">
+                                <Path Width="12" Height="12" Data="M3,4.5 L6,7.5 L9,4.5" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.6" StrokeLineCap="Round" RenderTransformOrigin="50%,50%">
+                                  <Path.RenderTransform><RotateTransform Angle="{Binding ChevronAngle}" /></Path.RenderTransform>
+                                </Path>
+                              </Button>
+                            </Grid>
+                            <ItemsControl Grid.Row="1" ItemsSource="{Binding Commands}" Margin="34,0,8,8" IsVisible="{Binding IsExpanded}">
+                              <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                  <Grid Classes="template-command-check" ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalAlignment="Center" />
+                                    <StackPanel Grid.Column="1" Spacing="3" VerticalAlignment="Center">
+                                      <TextBlock Text="{Binding Name}" FontSize="12" TextWrapping="Wrap" />
+                                      <TextBlock Text="{Binding Command}" Classes="muted mono" FontSize="10" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                  </Grid>
+                                </DataTemplate>
+                              </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                          </Grid>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </ScrollViewer>
+                <Border Grid.Row="3" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="18,14">
+                  <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+                    <TextBlock Grid.Column="0" Text="{Binding PanelTemplateLabel}" Classes="muted" FontSize="11" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                    <Button Grid.Column="1" Content="{DynamicResource 'Применить'}" Classes="dialog-cancel" Command="{Binding ApplySelectedTemplateCommand}" />
+                    <Button Grid.Column="2" Content="{DynamicResource 'Сохранить шаблон'}" Classes="primary dialog-save" Command="{Binding SaveCommandTemplateCommand}" IsVisible="{Binding CanEditTemplate}" IsEnabled="{Binding CanSaveTemplate}" />
+                  </Grid>
+                </Border>
+              </Grid>
+            </Border>
+          </Grid>
+          <Grid Grid.Row="2" IsVisible="{Binding IsInterfaceSettingsActive}" Margin="20">
+            <Border Classes="settings-panel" MaxWidth="650" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="26">
+              <StackPanel Spacing="20">
+                <StackPanel Spacing="5">
+                  <TextBlock Text="{DynamicResource 'Язык интерфейса'}" FontSize="18" FontWeight="SemiBold" />
+                  <TextBlock Text="{DynamicResource 'Изменения применяются сразу и сохраняются на этом ПК'}" Classes="muted" FontSize="11" TextWrapping="Wrap" />
+                </StackPanel>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                  <Button Grid.Column="0" Classes="language-option" Classes.selected="{Binding IsRussianLanguage}" Command="{Binding SetLanguageCommand}" CommandParameter="Russian" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+                    <StackPanel Spacing="4"><TextBlock Text="Русский" FontWeight="SemiBold" HorizontalAlignment="Center" /><TextBlock Text="RU" Classes="muted" FontSize="10" HorizontalAlignment="Center" /></StackPanel>
+                  </Button>
+                  <Button Grid.Column="1" Classes="language-option" Classes.selected="{Binding IsEnglishLanguage}" Command="{Binding SetLanguageCommand}" CommandParameter="English" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+                    <StackPanel Spacing="4"><TextBlock Text="English" FontWeight="SemiBold" HorizontalAlignment="Center" /><TextBlock Text="EN" Classes="muted" FontSize="10" HorizontalAlignment="Center" /></StackPanel>
+                  </Button>
+                </Grid>
+              </StackPanel>
+            </Border>
+          </Grid>
+        </Grid>
+
+        <!-- Persistent command history -->
+        <Grid IsVisible="{Binding IsHistoryTabActive}" RowDefinitions="Auto,*">
+          <Border Grid.Row="0" Padding="24,22" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1" Background="{DynamicResource PanelBackground}">
+            <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="14">
+              <Border Grid.Column="0" Width="44" Height="44" CornerRadius="10" Background="{DynamicResource ElevatedBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                <TextBlock Text="◷" FontSize="25" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Border>
+              <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="3">
+                <TextBlock Text="{DynamicResource 'История'}" FontSize="21" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding HistorySummary}" Classes="muted" FontSize="11" />
+              </StackPanel>
+              <Button Grid.Column="2" Content="{DynamicResource '↻  Обновить'}" Classes="ghost compact" Command="{Binding RefreshHistoryCommand}" VerticalAlignment="Center" />
+              <Button Grid.Column="3" Content="{DynamicResource 'Очистить историю'}" Classes="danger compact" Command="{Binding ClearHistoryCommand}" IsEnabled="{Binding HasHistory}" VerticalAlignment="Center" />
+            </Grid>
+          </Border>
+          <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="22">
+              <ItemsControl ItemsSource="{Binding HistoryEntries}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <Border Classes="history-entry">
+                      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
+                        <StackPanel Grid.Column="0" Spacing="9" VerticalAlignment="Center">
+                          <TextBlock Text="{Binding CommandText}" Classes="mono history-command" TextWrapping="Wrap" />
+                          <StackPanel Orientation="Horizontal" Spacing="9">
+                            <TextBlock Text="{Binding ExecutedAt, StringFormat={}{0:dd.MM.yyyy HH:mm:ss}}" Classes="muted" FontSize="10" />
+                            <TextBlock Text="·" Classes="muted" FontSize="10" />
+                            <TextBlock Text="{Binding ServerName}" Classes="muted" FontSize="10" />
+                          </StackPanel>
+                        </StackPanel>
+                        <Button Grid.Column="1" Classes="ghost compact" Command="{Binding DataContext.CopyHistoryEntryCommand, ElementName=RootWindow}" CommandParameter="{Binding}" VerticalAlignment="Center" ToolTip.Tip="{DynamicResource 'Скопировать команду'}">
+                          <StackPanel Orientation="Horizontal" Spacing="7"><TextBlock Text="▣" /><TextBlock Text="{DynamicResource 'Копировать'}" /></StackPanel>
+                        </Button>
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <StackPanel IsVisible="{Binding !HasHistory}" HorizontalAlignment="Center" Margin="30,100,30,30" Spacing="12">
+                <TextBlock Text="◷" Classes="muted" FontSize="52" HorizontalAlignment="Center" />
+                <TextBlock Text="{DynamicResource 'История пока пуста'}" FontSize="20" FontWeight="SemiBold" TextAlignment="Center" />
+                <TextBlock Text="{DynamicResource 'Команды, реально отправленные в SSH-терминал, будут сохраняться здесь между запусками приложения.'}" Classes="muted" TextAlignment="Center" TextWrapping="Wrap" MaxWidth="440" />
+              </StackPanel>
+            </StackPanel>
+          </ScrollViewer>
+        </Grid>
+      </Grid>
+
+      <!-- Server tools: quick commands and saved scripts -->
+      <Border Grid.Column="2" Width="380" Background="{DynamicResource PanelBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,0,0" IsVisible="{Binding IsRightPanelVisible}">
+        <Grid RowDefinitions="Auto,Auto,*">
+          <Grid Grid.Row="0" ColumnDefinitions="Auto,*" ColumnSpacing="13" Margin="18,20,18,18">
+            <Border Grid.Column="0" Classes="tools-icon">
+              <TextBlock Text="›_" Foreground="{DynamicResource AccentBrush}" FontSize="23" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <TextBlock Grid.Column="1" Text="{DynamicResource 'Инструменты сервера'}" FontWeight="SemiBold" FontSize="19" VerticalAlignment="Center" />
+          </Grid>
+
+          <Grid Grid.Row="1" ColumnDefinitions="*,*" Classes="tools-switcher" Margin="16,0,16,20">
+            <Button Grid.Column="0" Classes="tools-tab" Classes.selected="{Binding IsQuickCommandsActive}" Command="{Binding SetToolsSectionCommand}" CommandParameter="Quick" Content="{DynamicResource 'Быстрые команды'}" />
+            <Button Grid.Column="1" Classes="tools-tab" Classes.selected="{Binding IsScriptsActive}" Command="{Binding SetToolsSectionCommand}" CommandParameter="Scripts" Content="{DynamicResource 'Скрипты'}" />
+          </Grid>
+
+          <Grid Grid.Row="2" RowDefinitions="Auto,Auto,Auto,*" IsVisible="{Binding IsQuickCommandsActive}">
+            <TextBlock Grid.Row="0" Text="{DynamicResource 'Выберите раздел и команду'}" Classes="muted" FontSize="12" Margin="18,0,18,16" />
+            <Grid Grid.Row="1" ColumnDefinitions="Auto,*" ColumnSpacing="14" Margin="18,0,16,12">
+              <TextBlock Grid.Column="0" Text="{DynamicResource 'Действие'}" Classes="muted" FontSize="12" VerticalAlignment="Center" />
+              <Grid Grid.Column="1" ColumnDefinitions="*,*" Classes="mode-switcher">
+                <Button Grid.Column="0" Classes="mode" Classes.selected="{Binding IsExecuteMode}" Command="{Binding SetQuickModeCommand}" CommandParameter="False" Margin="2">
+                  <StackPanel Orientation="Horizontal" Spacing="7"><TextBlock Text="▶" FontSize="10" /><TextBlock Text="{DynamicResource 'Выполнять'}" /></StackPanel>
+                </Button>
+                <Button Grid.Column="1" Classes="mode" Classes.selected="{Binding QuickCopyMode}" Command="{Binding SetQuickModeCommand}" CommandParameter="True" Margin="2">
+                  <StackPanel Orientation="Horizontal" Spacing="7"><TextBlock Text="▣" FontSize="12" /><TextBlock Text="{DynamicResource 'Копировать'}" /></StackPanel>
+                </Button>
+              </Grid>
+            </Grid>
+            <Grid Grid.Row="2" Margin="16,0,16,16">
+              <TextBox x:Name="CommandSearchBox" Classes="search-box" Text="{Binding CommandSearchText}" Watermark="{DynamicResource 'Найти команду'}" Padding="38,9,14,9" />
+              <TextBlock Text="⌕" Classes="muted" FontSize="21" Margin="12,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" IsHitTestVisible="False" />
+            </Grid>
+            <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Padding="0,0,3,0">
+              <StackPanel Margin="16,0,13,16">
+                <ItemsControl ItemsSource="{Binding BuiltInCategories}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Border Classes="command-category" IsVisible="{Binding HasCommands}">
+                        <Grid RowDefinitions="Auto,Auto">
+                          <Button Grid.Row="0" Classes="category-header" Command="{Binding ToggleExpandedCommand}">
+                            <Grid ColumnDefinitions="Auto,*,Auto">
+                              <TextBlock Grid.Column="0" Text="{Binding Icon}" Foreground="{DynamicResource TextBrush}" FontSize="20" Width="29" VerticalAlignment="Center" />
+                              <TextBlock Grid.Column="1" Text="{Binding Name}" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                              <TextBlock Grid.Column="2" Text="⌄" Classes="muted" FontSize="17" VerticalAlignment="Center" IsVisible="{Binding !IsExpanded}" />
+                              <TextBlock Grid.Column="2" Text="⌃" Foreground="{DynamicResource AccentBrush}" FontSize="17" VerticalAlignment="Center" IsVisible="{Binding IsExpanded}" />
+                            </Grid>
+                          </Button>
+                          <ItemsControl Grid.Row="1" ItemsSource="{Binding Commands}" IsVisible="{Binding IsExpanded}">
+                            <ItemsControl.ItemTemplate>
+                              <DataTemplate>
+                                <Button Classes="command-row" Classes.selected="{Binding IsSelected}" Classes.danger="{Binding IsDangerous}" Command="{Binding DataContext.RunQuickCommandCommand, ElementName=RootWindow}" CommandParameter="{Binding}" ToolTip.Tip="{Binding Description}">
+                                  <Grid ColumnDefinitions="*,Auto,Auto">
+                                    <StackPanel Grid.Column="0" Spacing="4"><TextBlock Text="{Binding Name}" TextWrapping="Wrap" /><TextBlock Text="{Binding Command}" Classes="muted mono" FontSize="11" TextWrapping="Wrap" /></StackPanel>
+                                    <TextBlock Grid.Column="1" Text="!" Classes="danger" FontWeight="Bold" Margin="8,0,0,0" IsVisible="{Binding IsDangerous}" ToolTip.Tip="{DynamicResource 'Требуется подтверждение перед выполнением'}" />
+                                    <Border Grid.Column="2" Width="21" Height="21" CornerRadius="11" Background="{DynamicResource AccentBrush}" Margin="8,0,0,0" IsVisible="{Binding IsSelected}"><TextBlock Text="✓" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentTextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                                  </Grid>
+                                </Button>
+                              </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                          </ItemsControl>
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <StackPanel IsVisible="{Binding HasNoCommandResults}" Margin="16,34" Spacing="8">
+                  <TextBlock Text="{DynamicResource 'Ничего не найдено'}" FontWeight="SemiBold" FontSize="16" TextAlignment="Center" />
+                  <TextBlock Text="{DynamicResource 'Попробуйте другое название, утилиту или фрагмент команды.'}" Classes="muted" TextWrapping="Wrap" TextAlignment="Center" />
+                  <Button Content="{DynamicResource 'Очистить поиск'}" Classes="ghost compact" Command="{Binding ClearCommandSearchCommand}" HorizontalAlignment="Center" />
+                </StackPanel>
+              </StackPanel>
+            </ScrollViewer>
+          </Grid>
+
+          <Grid Grid.Row="2" RowDefinitions="Auto,Auto,*,Auto" IsVisible="{Binding IsScriptsActive}">
+            <TextBlock Grid.Row="0" Text="{DynamicResource 'Сохранённые сценарии для сервера'}" Classes="muted" FontSize="12" Margin="18,0,18,16" />
+            <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="10" Margin="16,0,16,16">
+              <Grid Grid.Column="0">
+                <TextBox Classes="search-box" Text="{Binding ScriptSearchText}" Watermark="{DynamicResource 'Найти скрипт'}" Padding="36,9,10,9" />
+                <TextBlock Text="⌕" Classes="muted" FontSize="20" Margin="11,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" IsHitTestVisible="False" />
+              </Grid>
+              <Button Grid.Column="1" Classes="primary new-script" Command="{Binding NewCustomCommandCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="7"><TextBlock Text="＋" FontSize="17" /><TextBlock Text="{DynamicResource 'Новый скрипт'}" /></StackPanel>
+              </Button>
+            </Grid>
+            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="0,0,3,0">
+              <StackPanel Margin="16,0,13,12">
+                <ItemsControl ItemsSource="{Binding VisibleCustomCommands}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Border Classes="script-card" Classes.selected="{Binding IsSelected}">
+                        <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8">
+                          <Border Grid.Column="0" Classes="script-icon" VerticalAlignment="Center">
+                            <TextBlock Text="▤" Foreground="{DynamicResource AccentBrush}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                          </Border>
+                          <StackPanel Grid.Column="1" Spacing="3" VerticalAlignment="Center">
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                              <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="SemiBold" FontSize="12" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                              <Border Grid.Column="1" Classes="script-kind-badge" VerticalAlignment="Center"><TextBlock Text="{Binding Kind}" Classes="muted" FontSize="9" /></Border>
+                            </Grid>
+                            <TextBlock Text="{Binding Description}" Classes="muted" FontSize="10" LineHeight="14" TextTrimming="CharacterEllipsis" />
+                          </StackPanel>
+                          <Button Grid.Column="2" Classes="script-run" Classes.selected="{Binding IsSelected}" Command="{Binding RunCommand}" ToolTip.Tip="{DynamicResource 'Запустить скрипт'}" VerticalAlignment="Center">
+                            <TextBlock Text="▶" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                          </Button>
+                          <Button Grid.Column="3" Classes="script-menu" Content="⋯" ToolTip.Tip="{DynamicResource 'Действия со скриптом'}" VerticalAlignment="Center">
+                            <Button.Flyout>
+                              <MenuFlyout Placement="BottomEdgeAlignedRight">
+                                <MenuItem Header="{DynamicResource 'Изменить'}" Command="{Binding EditCommand}" />
+                                <MenuItem Header="{DynamicResource 'Копировать код'}" Command="{Binding CopyCommand}" />
+                                <Separator />
+                                <MenuItem Header="{DynamicResource 'Удалить скрипт'}" Command="{Binding DeleteCommand}" />
+                              </MenuFlyout>
+                            </Button.Flyout>
+                          </Button>
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <StackPanel IsVisible="{Binding HasNoScriptResults}" Margin="18,48,18,24" Spacing="11">
+                  <TextBlock Text="▤" Classes="muted" FontSize="42" HorizontalAlignment="Center" />
+                  <TextBlock Text="{DynamicResource 'Скриптов пока нет'}" FontWeight="SemiBold" FontSize="16" TextAlignment="Center" />
+                  <TextBlock Text="{DynamicResource 'Создайте сценарий из одной или нескольких команд — он сохранится на этом ПК.'}" Classes="muted" FontSize="11" TextWrapping="Wrap" TextAlignment="Center" />
+                  <Button Content="{DynamicResource 'Создать первый скрипт'}" Classes="ghost compact" Command="{Binding NewCustomCommandCommand}" HorizontalAlignment="Center" />
+                </StackPanel>
+              </StackPanel>
+            </ScrollViewer>
+            <Border Grid.Row="3" Classes="script-safety" Margin="16,4,16,18">
+              <Grid ColumnDefinitions="Auto,*" ColumnSpacing="11">
+                <TextBlock Grid.Column="0" Text="♢" Foreground="{DynamicResource AccentBrush}" FontSize="27" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{DynamicResource 'Перед запуском проверьте код скрипта'}" Classes="muted" FontSize="11" TextWrapping="Wrap" VerticalAlignment="Center" />
+              </Grid>
+            </Border>
+          </Grid>
+        </Grid>
+      </Border>
+    </Grid>
+
+    <!-- Status bar -->
+    <Border Grid.Row="3" Padding="14,3" Background="{DynamicResource PanelBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <Ellipse Grid.Column="0" Width="8" Height="8" Fill="#69BE78" VerticalAlignment="Center" Margin="0,0,9,0" />
+        <TextBlock Grid.Column="1" Text="{Binding StatusMessage}" Classes="muted" FontSize="11" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+        <TextBlock Grid.Column="2" Text="SSH.NET   ·   UTF-8   ·   PTY" Classes="muted" FontSize="10" VerticalAlignment="Center" />
+      </Grid>
+    </Border>
+
+    <!-- Connection editor modal -->
+    <Grid Grid.Row="0" Grid.RowSpan="4" Background="#B8000000" IsVisible="{Binding IsConnectionEditorOpen}" ZIndex="50">
+      <Border Classes="connection-dialog" Width="650" MaxHeight="790" Margin="24" Padding="28" VerticalAlignment="Center">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+          <StackPanel DataContext="{Binding ConnectionEditor}" Spacing="17">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16" Margin="0,0,0,4">
+              <Border Grid.Column="0" Width="58" Height="58" CornerRadius="12" Background="{DynamicResource ElevatedBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                <Grid><TextBlock Text="›_" FontSize="28" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" /><Border Width="20" Height="20" CornerRadius="5" Background="{DynamicResource AccentBrush}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-6,-6"><TextBlock Text="+" Foreground="{DynamicResource AccentTextBrush}" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border></Grid>
+              </Border>
+              <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="5"><TextBlock Text="{Binding Title}" FontSize="23" FontWeight="SemiBold" /><TextBlock Text="{DynamicResource 'Добавьте сервер в рабочее пространство'}" Classes="muted" FontSize="12" /></StackPanel>
+              <Button Grid.Column="2" Classes="dialog-close" Command="{Binding CancelCommand}" VerticalAlignment="Top" ToolTip.Tip="{DynamicResource 'Закрыть'}">
+                <Path Width="16" Height="16" Data="M3,3 L13,13 M13,3 L3,13" Stroke="{DynamicResource TextBrush}" StrokeThickness="1.6" StrokeLineCap="Round" HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Button>
+            </Grid>
+            <StackPanel Spacing="7"><TextBlock Text="{DynamicResource 'Название'}" FontWeight="SemiBold" /><TextBox Classes="editor-input" Text="{Binding Name}" Watermark="{DynamicResource 'Например, Production API'}" /></StackPanel>
+            <Grid ColumnDefinitions="*,135" ColumnSpacing="18">
+              <StackPanel Grid.Column="0" Spacing="7"><TextBlock Text="{DynamicResource 'Сервер'}" FontWeight="SemiBold" /><TextBox Classes="editor-input" Text="{Binding Host}" Watermark="{DynamicResource '192.168.1.10 или example.com'}" /></StackPanel>
+              <StackPanel Grid.Column="1" Spacing="7"><TextBlock Text="{DynamicResource 'Порт'}" FontWeight="SemiBold" /><NumericUpDown Classes="editor-input" Value="{Binding Port}" Minimum="1" Maximum="65535" Increment="1" ShowButtonSpinner="False" /></StackPanel>
+            </Grid>
+            <Grid ColumnDefinitions="*,*,Auto" ColumnSpacing="14">
+              <StackPanel Grid.Column="0" Spacing="7"><TextBlock Text="{DynamicResource 'Пользователь'}" FontWeight="SemiBold" /><TextBox Classes="editor-input" Text="{Binding Username}" Watermark="root" /></StackPanel>
+              <StackPanel Grid.Column="1" Spacing="7"><TextBlock Text="{DynamicResource 'Группа'}" FontWeight="SemiBold" /><ComboBox Classes="editor-input" ItemsSource="{Binding Groups}" SelectedItem="{Binding SelectedGroup}" HorizontalAlignment="Stretch"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+              <Button Grid.Column="2" Content="＋" Classes="group-add" Command="{Binding OpenGroupPopupCommand}" ToolTip.Tip="{DynamicResource 'Новая группа'}" VerticalAlignment="Bottom" />
+            </Grid>
+            <Border IsVisible="{Binding IsGroupPopupOpen}" Background="{DynamicResource ElevatedBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="7" Padding="10">
+              <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="6"><TextBox Grid.Column="0" Text="{Binding NewGroupName}" Watermark="{DynamicResource 'Название новой группы'}" /><Button Grid.Column="1" Content="{DynamicResource 'Добавить'}" Classes="primary compact" Command="{Binding AddGroupCommand}" /><Button Grid.Column="2" Content="×" Classes="ghost compact" Command="{Binding CloseGroupPopupCommand}" /></Grid>
+            </Border>
+            <StackPanel Spacing="8">
+              <TextBlock Text="{DynamicResource 'Аутентификация'}" FontWeight="SemiBold" />
+              <Grid ColumnDefinitions="*,*" Classes="auth-switcher">
+                <Button Grid.Column="0" Classes="auth-mode" Classes.selected="{Binding HasPassword}" Command="{Binding SetAuthenticationCommand}" CommandParameter="0" Margin="2,2,1,2"><TextBlock Text="{DynamicResource 'Пароль'}" /></Button>
+                <Button Grid.Column="1" Classes="auth-mode" Classes.selected="{Binding IsPrivateKey}" Command="{Binding SetAuthenticationCommand}" CommandParameter="1" Margin="1,2,2,2"><TextBlock Text="{DynamicResource 'SSH-ключ'}" /></Button>
+              </Grid>
+            </StackPanel>
+            <StackPanel Spacing="7" IsVisible="{Binding HasPassword}">
+              <TextBlock Text="{DynamicResource 'Пароль'}" FontWeight="SemiBold" />
+              <Grid><TextBox Classes="editor-input" Text="{Binding Password}" PasswordChar="{Binding PasswordMask}" Padding="12,0,48,0" Watermark="{DynamicResource 'Введите пароль'}" /><Button Classes="password-toggle" Command="{Binding TogglePasswordVisibilityCommand}" HorizontalAlignment="Right" VerticalAlignment="Center" ToolTip.Tip="{DynamicResource 'Показать или скрыть пароль'}" AutomationProperties.Name="{DynamicResource 'Показать или скрыть пароль'}"><Grid Width="22" Height="18"><PathIcon Width="20" Height="16" Data="M1,12 C4,6 8,3 12,3 C16,3 20,6 23,12 C20,18 16,21 12,21 C8,21 4,18 1,12 Z M12,8 A4,4 0 1,0 12,16 A4,4 0 1,0 12,8" /><TextBlock Text="╱" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsPasswordVisible}" /></Grid></Button></Grid>
+              <TextBlock Text="{DynamicResource 'Оставьте пустым, чтобы не менять сохранённый пароль'}" Classes="muted" FontSize="11" IsVisible="{Binding IsExisting}" />
+            </StackPanel>
+            <StackPanel Spacing="12" IsVisible="{Binding IsPrivateKey}">
+              <StackPanel Spacing="7"><TextBlock Text="{DynamicResource 'Путь к закрытому ключу'}" FontWeight="SemiBold" /><TextBox Classes="editor-input" Text="{Binding PrivateKeyPath}" Watermark="/home/user/.ssh/id_ed25519" /></StackPanel>
+              <StackPanel Spacing="7"><TextBlock Text="{DynamicResource 'Парольная фраза (необязательно)'}" FontWeight="SemiBold" /><Grid><TextBox Classes="editor-input" Text="{Binding Passphrase}" PasswordChar="{Binding PassphraseMask}" Padding="12,0,48,0" Watermark="{DynamicResource 'Оставьте пустым, если не требуется'}" /><Button Classes="password-toggle" Command="{Binding TogglePassphraseVisibilityCommand}" HorizontalAlignment="Right" VerticalAlignment="Center" ToolTip.Tip="{DynamicResource 'Показать или скрыть парольную фразу'}" AutomationProperties.Name="{DynamicResource 'Показать или скрыть парольную фразу'}"><Grid Width="22" Height="18"><PathIcon Width="20" Height="16" Data="M1,12 C4,6 8,3 12,3 C16,3 20,6 23,12 C20,18 16,21 12,21 C8,21 4,18 1,12 Z M12,8 A4,4 0 1,0 12,16 A4,4 0 1,0 12,8" /><TextBlock Text="╱" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsPassphraseVisible}" /></Grid></Button></Grid></StackPanel>
+            </StackPanel>
+            <Border Classes="advanced-panel">
+              <Grid RowDefinitions="Auto,Auto">
+                <Button Grid.Row="0" Classes="advanced-header" Command="{Binding ToggleAdvancedCommand}"><Grid ColumnDefinitions="Auto,*,Auto"><TextBlock Grid.Column="0" Text="⚙" FontSize="19" Classes="muted" /><TextBlock Grid.Column="1" Text="{DynamicResource 'Дополнительные параметры'}" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center" /><TextBlock Grid.Column="2" Text="{Binding AdvancedChevron}" Classes="muted" FontSize="17" /></Grid></Button>
+                <StackPanel Grid.Row="1" IsVisible="{Binding IsAdvancedOpen}" Margin="14,0,14,14" Spacing="7"><TextBlock Text="SSH · PTY · UTF-8" Classes="mono" FontSize="11" /><TextBlock Text="{DynamicResource 'KeepAlive, heartbeat и автоматическое переподключение включены для каждой сессии.'}" Classes="muted" FontSize="11" TextWrapping="Wrap" /></StackPanel>
+              </Grid>
+            </Border>
+            <StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Text="▣" Foreground="{DynamicResource AccentBrush}" FontSize="18" /><TextBlock Text="{DynamicResource 'Секреты шифруются перед сохранением в локальную базу.'}" Classes="muted" FontSize="11" VerticalAlignment="Center" TextWrapping="Wrap" /></StackPanel>
+            <TextBlock Text="{Binding ErrorMessage}" Classes="danger" TextWrapping="Wrap" IsVisible="{Binding HasError}" />
+            <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="0,18,0,0" Margin="0,2,0,0">
+              <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right"><Button Content="{DynamicResource 'Отмена'}" Classes="dialog-cancel" Command="{Binding CancelCommand}" /><Button Content="{DynamicResource 'Сохранить подключение'}" Classes="primary dialog-save" Command="{Binding SaveCommand}" IsEnabled="{Binding !IsBusy}" /></StackPanel>
+            </Border>
+          </StackPanel>
+        </ScrollViewer>
+      </Border>
+    </Grid>
+
+    <!-- Custom command editor modal -->
+    <Grid Grid.Row="0" Grid.RowSpan="4" Background="#B8000000" IsVisible="{Binding IsCustomCommandEditorOpen}" ZIndex="60">
+      <Border Classes="connection-dialog" Width="570" MaxHeight="700" Margin="24" Padding="26" VerticalAlignment="Center">
+        <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel DataContext="{Binding CustomCommandEditor}" Spacing="16">
+          <DockPanel><Button DockPanel.Dock="Right" Content="×" Classes="dialog-close" Command="{Binding CancelCommand}" /><StackPanel><TextBlock Text="{Binding Title}" FontSize="21" FontWeight="SemiBold" /><TextBlock Text="{DynamicResource 'Команды выполняются построчно с паузой 180 мс.'}" Classes="muted" /></StackPanel></DockPanel>
+          <StackPanel Spacing="6"><TextBlock Text="{Binding NameLabel}" FontWeight="SemiBold" /><TextBox Classes="editor-input" Text="{Binding Name}" Watermark="{DynamicResource 'Например, Диагностика веб-сервера'}" /></StackPanel>
+          <DockPanel VerticalAlignment="Center"><Button DockPanel.Dock="Right" Content="{DynamicResource '＋ Добавить строку'}" Classes="ghost compact" Command="{Binding AddLineCommand}" /><TextBlock Text="{DynamicResource 'Последовательность'}" FontWeight="SemiBold" VerticalAlignment="Center" /></DockPanel>
+          <ItemsControl ItemsSource="{Binding Lines}"><ItemsControl.ItemTemplate><DataTemplate><Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8" Margin="0,3"><TextBlock Grid.Column="0" Text="›" Classes="muted mono" VerticalAlignment="Center" /><TextBox Grid.Column="1" Text="{Binding Value}" Watermark="systemctl status nginx" FontFamily="Cascadia Code, JetBrains Mono, Consolas, monospace" /><Button Grid.Column="2" Content="×" Classes="ghost compact" Command="{Binding DataContext.RemoveLineCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" /></Grid></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+          <TextBlock Text="{Binding ErrorMessage}" Classes="danger" TextWrapping="Wrap" IsVisible="{Binding HasError}" />
+          <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right"><Button Content="{DynamicResource 'Отмена'}" Classes="dialog-cancel" Command="{Binding CancelCommand}" /><Button Content="{Binding SaveButtonLabel}" Classes="primary dialog-save" Command="{Binding SaveCommand}" IsEnabled="{Binding !IsBusy}" /></StackPanel>
+        </StackPanel></ScrollViewer>
+      </Border>
+    </Grid>
+
+    <!-- Dangerous command confirmation -->
+    <Grid Grid.Row="0" Grid.RowSpan="4" Background="#C0000000" IsVisible="{Binding IsDangerousConfirmationOpen}" ZIndex="65">
+      <Border Classes="connection-dialog" Width="500" Margin="24" Padding="24" BorderBrush="{DynamicResource DangerBrush}" VerticalAlignment="Center">
+        <StackPanel Spacing="16"><StackPanel Orientation="Horizontal" Spacing="12"><Border Width="38" Height="38" CornerRadius="19" Background="{DynamicResource HoverBackground}"><TextBlock Text="!" Classes="danger" FontSize="23" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border><StackPanel VerticalAlignment="Center" Spacing="3"><TextBlock Text="{DynamicResource 'Опасная команда'}" FontSize="20" FontWeight="SemiBold" /><TextBlock Text="{DynamicResource 'Подтвердите отправку на сервер'}" Classes="muted" /></StackPanel></StackPanel><TextBlock Text="{Binding DangerousConfirmationText}" TextWrapping="Wrap" FontFamily="Cascadia Code, JetBrains Mono, Consolas, monospace" /><TextBlock Text="{DynamicResource 'Команда будет выполнена в активном SSH-терминале. Отмена не отправляет ничего.'}" Classes="muted" TextWrapping="Wrap" /><StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right"><Button Content="{DynamicResource 'Отмена'}" Classes="dialog-cancel" Command="{Binding CancelDangerousCommandCommand}" /><Button Content="{DynamicResource 'Всё равно выполнить'}" Classes="danger" Command="{Binding ConfirmDangerousCommandCommand}" /></StackPanel></StackPanel>
+      </Border>
+    </Grid>
+
+    <!-- Delete confirmation -->
+    <Grid Grid.Row="0" Grid.RowSpan="4" Background="#B8000000" IsVisible="{Binding IsDeleteConfirmationOpen}" ZIndex="70">
+      <Border Classes="connection-dialog" Width="430" Margin="24" Padding="24" VerticalAlignment="Center"><StackPanel Spacing="18"><TextBlock Text="{DynamicResource 'Удаление подключения'}" FontSize="20" FontWeight="SemiBold" /><TextBlock Text="{Binding DeleteConfirmationText}" TextWrapping="Wrap" Classes="muted" /><StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right"><Button Content="{DynamicResource 'Отмена'}" Classes="dialog-cancel" Command="{Binding CancelDeleteConnectionCommand}" /><Button Content="{DynamicResource 'Удалить'}" Classes="primary" Command="{Binding ConfirmDeleteConnectionCommand}" /></StackPanel></StackPanel></Border>
+    </Grid>
+  </Grid>
+</Window>
