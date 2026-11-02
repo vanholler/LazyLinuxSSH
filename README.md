@@ -27,6 +27,9 @@ Desktop-приложение для SSH-подключений, PTY-термин
 
 Проект создан на **C# 12, .NET 8 и Avalonia UI**, использует **SSH.NET** и хранит данные локально в **SQLite**.
 
+## Демо
+[▶ Посмотреть демо](./demo.mp4)
+
 ## Интерфейс
 
 ![Общий интерфейс LazyLinuxSSH](docs/screenshots/overview.png)
