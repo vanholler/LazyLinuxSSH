@@ -447,22 +447,27 @@ internal abstract class FakeFileTransferSession : IFileTransferSession
     public List<(string Path, string Content)> Writes { get; } = [];
     public List<(string RemotePath, string LocalPath)> Downloads { get; } = [];
     public string? WorkingDirectory { get; set; }
+    public string FakeHomeDirectory { get; set; } = "/root";
 
-    public Task<TextFileContent> ReadTextFileAsync(string path, CancellationToken cancellationToken = default) =>
-        Task.FromResult(Files.TryGetValue(path, out var content)
-            ? new TextFileContent(path, content, true)
-            : new TextFileContent(path, string.Empty, false));
+    public Task<TextFileContent> ReadTextFileAsync(string path, CancellationToken cancellationToken = default)
+    {
+        var fullPath = Resolve(path);
+        return Task.FromResult(Files.TryGetValue(fullPath, out var content)
+            ? new TextFileContent(fullPath, content, true)
+            : new TextFileContent(fullPath, string.Empty, false));
+    }
 
     public Task WriteTextFileAsync(string path, string content, CancellationToken cancellationToken = default)
     {
-        Files[path] = content;
-        Writes.Add((path, content));
+        var fullPath = Resolve(path);
+        Files[fullPath] = content;
+        Writes.Add((fullPath, content));
         return Task.CompletedTask;
     }
 
     public Task DownloadFileAsync(string remotePath, string localPath, CancellationToken cancellationToken = default)
     {
-        Downloads.Add((remotePath, localPath));
+        Downloads.Add((Resolve(remotePath), localPath));
         return Task.CompletedTask;
     }
 
@@ -471,10 +476,13 @@ internal abstract class FakeFileTransferSession : IFileTransferSession
     public Task UploadFileAsync(string localPath, string remoteFileName, CancellationToken cancellationToken = default)
     {
         Uploads.Add((localPath, remoteFileName));
-        var name = Path.GetFileName(remoteFileName);
-        Files[name] = File.Exists(localPath) ? File.ReadAllText(localPath) : string.Empty;
+        var fullPath = Resolve(Path.GetFileName(remoteFileName.Replace('\\', '/')));
+        Files[fullPath] = File.Exists(localPath) ? File.ReadAllText(localPath) : string.Empty;
         return Task.CompletedTask;
     }
+
+    private string Resolve(string path) =>
+        ShellWorkingDirectory.ResolveAgainstHome(WorkingDirectory, FakeHomeDirectory, path);
 }
 
 internal sealed class FakeLocalShellSessionFactory : ILocalShellSessionFactory

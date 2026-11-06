@@ -70,12 +70,13 @@ public sealed partial class LocalTerminalViewModel : TerminalViewModelBase
 
         try
         {
+            SyncInteractiveLineFromScreen(text);
             var editorCommand = GetCompletedEditorCommand(text);
             if (editorCommand is not null && Core.Services.EditorCommandParser.TryParse(editorCommand, out var filePath))
             {
                 ResetInteractiveLine();
                 EchoLocalInputIfRequired("\r");
-                await _session.SendAsync("\u0015\r", cancellationToken);
+                await _session.SendAsync("\u0015", cancellationToken);
                 await Task.Delay(40, cancellationToken);
                 EchoInterceptedCommand(editorCommand);
                 await TryRecordAsync(editorCommand, CommandHistorySource.Interactive, cancellationToken);
@@ -174,6 +175,13 @@ public sealed partial class LocalTerminalViewModel : TerminalViewModelBase
 
     protected override void ObserveShellCommand(string command) =>
         _session.WorkingDirectory = ShellWorkingDirectory.Apply(_session.WorkingDirectory, command);
+
+    protected override void NotePromptDirectory(string? directory)
+    {
+        if (string.IsNullOrWhiteSpace(directory)) return;
+        if (directory.StartsWith('/') || directory == "~" || directory.StartsWith("~/"))
+            _session.WorkingDirectory = directory;
+    }
 
     public override async ValueTask DisposeAsync()
     {

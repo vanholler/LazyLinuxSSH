@@ -14,17 +14,12 @@ public sealed class SshSession : ISshSession
     private readonly ICredentialProtector _credentialProtector;
     private readonly List<IDisposable> _keyFiles = [];
     private readonly SemaphoreSlim _writeLock = new(1, 1);
-    private readonly object _pwdSync = new();
-    private readonly StringBuilder _pwdAccumulator = new();
     private CancellationTokenSource? _lifetime;
     private SshClient? _client;
     private ShellStream? _shell;
     private Task? _readTask;
     private SshSessionState _state = SshSessionState.Disconnected;
     private bool _disposed;
-    private TaskCompletionSource<string>? _pwdWaiter;
-    private string? _pwdStartMarker;
-    private string? _pwdEndMarker;
 
     public SshSession(ConnectionProfile profile, ICredentialProtector credentialProtector)
     {
@@ -226,120 +221,7 @@ public sealed class SshSession : ISshSession
         CancellationToken cancellationToken)
     {
         var home = (await client.GetAsync(".", cancellationToken)).FullName.TrimEnd('/');
-        if (NeedsShellWorkingDirectory(path))
-            await RefreshWorkingDirectoryFromShellAsync(cancellationToken);
         return ShellWorkingDirectory.ResolveAgainstHome(WorkingDirectory, home, path);
-    }
-
-    private static bool NeedsShellWorkingDirectory(string path) =>
-        !string.IsNullOrWhiteSpace(path) &&
-        path != "~" &&
-        !path.StartsWith('/') &&
-        !path.StartsWith("~/") &&
-        !path.StartsWith("~\\");
-
-    /// <summary>
-    /// Asks the interactive PTY for the real cwd. Tracking <c>cd</c> alone is not enough
-    /// when the user reaches a folder another way or the local tracker drifts.
-    /// Uses only alphanumeric markers — no shell quotes — so bash/zsh never leave stray `'`.
-    /// </summary>
-    private async Task RefreshWorkingDirectoryFromShellAsync(CancellationToken cancellationToken)
-    {
-        if (_shell is null || _state != SshSessionState.Connected) return;
-
-        var id = Guid.NewGuid().ToString("N");
-        var startMarker = $"LLSSHSTART{id}";
-        var endMarker = $"LLSSHEND{id}";
-        var waiter = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
-        lock (_pwdSync)
-        {
-            _pwdStartMarker = startMarker;
-            _pwdEndMarker = endMarker;
-            _pwdWaiter = waiter;
-            _pwdAccumulator.Clear();
-        }
-
-        // Clear partial input, then echo markers around pwd on their own lines (no quotes).
-        var probe = $"\u0015echo {startMarker};pwd -P;echo {endMarker}\r";
-        try
-        {
-            await SendAsync(probe, cancellationToken);
-            using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            timeout.CancelAfter(TimeSpan.FromSeconds(5));
-            var pwd = (await waiter.Task.WaitAsync(timeout.Token)).Trim().TrimEnd('\r', '\n');
-            if (pwd.StartsWith('/'))
-                WorkingDirectory = pwd;
-        }
-        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
-        {
-            // Timed out — keep the last known WorkingDirectory / fall back to home.
-        }
-        catch
-        {
-            // Best-effort; relative paths still fall back to home.
-        }
-        finally
-        {
-            // Keep filtering briefly so a late probe line is still swallowed after timeout.
-            await Task.Delay(200, CancellationToken.None);
-            lock (_pwdSync)
-            {
-                if (ReferenceEquals(_pwdWaiter, waiter))
-                {
-                    _pwdWaiter = null;
-                    _pwdStartMarker = null;
-                    _pwdEndMarker = null;
-                    _pwdAccumulator.Clear();
-                }
-            }
-        }
-    }
-
-    private string FilterPwdProbeOutput(string text)
-    {
-        lock (_pwdSync)
-        {
-            if (_pwdWaiter is null || _pwdStartMarker is null || _pwdEndMarker is null) return text;
-
-            _pwdAccumulator.Append(text);
-            var buffer = _pwdAccumulator.ToString();
-            var start = buffer.IndexOf(_pwdStartMarker, StringComparison.Ordinal);
-            if (start < 0)
-            {
-                // Hold everything while the probe is active (including the echoed command).
-                return string.Empty;
-            }
-
-            var afterStart = start + _pwdStartMarker.Length;
-            var end = buffer.IndexOf(_pwdEndMarker, afterStart, StringComparison.Ordinal);
-            if (end < 0)
-            {
-                _pwdAccumulator.Clear();
-                _pwdAccumulator.Append(buffer[start..]);
-                return string.Empty;
-            }
-
-            var between = buffer[afterStart..end];
-            var pwd = between
-                .Replace("\r\n", "\n", StringComparison.Ordinal)
-                .Replace('\r', '\n')
-                .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Select(line => line.Trim())
-                .FirstOrDefault(line => line.StartsWith('/'))
-                ?? between.Trim().Trim('\r', '\n');
-
-            var remainder = buffer[(end + _pwdEndMarker.Length)..];
-            if (remainder.StartsWith('\r')) remainder = remainder[1..];
-            if (remainder.StartsWith('\n')) remainder = remainder[1..];
-
-            var waiter = _pwdWaiter;
-            _pwdWaiter = null;
-            _pwdStartMarker = null;
-            _pwdEndMarker = null;
-            _pwdAccumulator.Clear();
-            waiter.TrySetResult(pwd);
-            return remainder;
-        }
     }
 
     private async Task<SshAuthenticationMethod[]> CreateAuthenticationMethodsAsync(CancellationToken cancellationToken)
@@ -384,8 +266,7 @@ public sealed class SshSession : ISshSession
                     out _, out var charsUsed, out _);
                 if (charsUsed > 0)
                 {
-                    var chunk = FilterPwdProbeOutput(new string(characters, 0, charsUsed));
-                    if (chunk.Length == 0) continue;
+                    var chunk = new string(characters, 0, charsUsed);
                     LastOutputAt = DateTimeOffset.UtcNow;
                     OutputReceived?.Invoke(this, chunk);
                 }

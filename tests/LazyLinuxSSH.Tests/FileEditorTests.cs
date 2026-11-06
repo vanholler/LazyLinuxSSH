@@ -89,6 +89,24 @@ public sealed class FileEditorTests
     }
 
     [Fact]
+    public void EditorCommandParser_MultiFileRequiresSinglePath()
+    {
+        Assert.True(EditorCommandParser.TryParse("nano reshala.conf nano resh", out var path));
+        Assert.Null(path);
+    }
+
+    [Theory]
+    [InlineData("root@vanholler1:/opt/remnanode# nano ./docker-compose.yml", "/opt/remnanode", "nano ./docker-compose.yml")]
+    [InlineData("root@vanholler1:~/config# nano reshala.conf", "~/config", "nano reshala.conf")]
+    [InlineData("(venv) user@host:~/app$ nano .env", "~/app", "nano .env")]
+    public void ShellPrompt_ReadsVisibleCommandAndDirectory(string line, string directory, string command)
+    {
+        Assert.True(ShellPrompt.TryReadInput(line, out var cwd, out var parsed));
+        Assert.Equal(directory, cwd);
+        Assert.Equal(command, parsed);
+    }
+
+    [Fact]
     public async Task NanoInput_OpensEditorWithoutSendingNanoToShell()
     {
         var (terminal, session, _, _) = await CreateSshTerminal();
@@ -102,7 +120,56 @@ public sealed class FileEditorTests
         Assert.Equal("port = 8080\n", editor.Content);
         Assert.Equal("/etc/app.conf", editor.FilePath);
         Assert.DoesNotContain("nano /etc/app.conf\r", session.Sent);
-        Assert.Contains("\u0015\r", session.Sent);
+        Assert.Contains(session.Sent, sent => sent.Contains('\u0015'));
+        Assert.DoesNotContain(session.Sent, sent => sent.Contains("\u0015\r", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task NanoOnScreen_UsesPromptPathInsteadOfPartialKeystrokes()
+    {
+        var (terminal, session, _, _) = await CreateSshTerminal();
+        session.WorkingDirectory = "/tmp";
+        session.Files["/opt/remnanode/docker-compose.yml"] = "services: {}\n";
+        terminal.Buffer.Append("root@vanholler1:/opt/remnanode# nano ./docker-compose.yml");
+
+        await terminal.SendTextAsync("nano ./do");
+        await terminal.SendTextAsync("\r");
+
+        var editor = Assert.IsType<FileEditorViewModel>(terminal.FileEditor);
+        Assert.Equal("/opt/remnanode/docker-compose.yml", editor.FilePath);
+        Assert.Equal("services: {}\n", editor.Content);
+        Assert.Equal("/opt/remnanode", session.WorkingDirectory);
+        Assert.DoesNotContain(session.Sent, sent => sent.Contains("LLSSH", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task NanoRelativePath_ResolvesAgainstTrackedWorkingDirectory()
+    {
+        var (terminal, session, _, _) = await CreateSshTerminal();
+        session.WorkingDirectory = "/opt/reshala/config";
+        session.Files["/opt/reshala/config/reshala.conf"] = "mode = production\n";
+
+        await terminal.SendTextAsync("nano reshala.conf\r");
+
+        var editor = Assert.IsType<FileEditorViewModel>(terminal.FileEditor);
+        Assert.Equal("mode = production\n", editor.Content);
+        Assert.Equal("/opt/reshala/config/reshala.conf", editor.FilePath);
+        Assert.True(editor.Exists);
+    }
+
+    [Fact]
+    public async Task CdThenNano_TracksDirectoryForRelativeOpen()
+    {
+        var (terminal, session, _, _) = await CreateSshTerminal();
+        session.Files["/opt/reshala/config/updater.conf"] = "interval = 60\n";
+
+        await terminal.SendTextAsync("cd /opt/reshala/config\r");
+        await terminal.SendTextAsync("nano updater.conf\r");
+
+        Assert.Equal("/opt/reshala/config", session.WorkingDirectory);
+        var editor = Assert.IsType<FileEditorViewModel>(terminal.FileEditor);
+        Assert.Equal("/opt/reshala/config/updater.conf", editor.FilePath);
+        Assert.Equal("interval = 60\n", editor.Content);
     }
 
     [Fact]

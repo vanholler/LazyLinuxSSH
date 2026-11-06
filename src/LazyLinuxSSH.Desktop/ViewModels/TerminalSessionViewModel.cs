@@ -108,13 +108,14 @@ public sealed partial class TerminalSessionViewModel : TerminalViewModelBase
 
         try
         {
+            SyncInteractiveLineFromScreen(text);
             var editorCommand = GetCompletedEditorCommand(text);
             if (editorCommand is not null && Core.Services.EditorCommandParser.TryParse(editorCommand, out var filePath))
             {
                 ResetInteractiveLine();
-                // Wipe the remote line so nano/vim does not start, then keep the command visible locally.
-                await _session.SendAsync("\u0015\r", cancellationToken);
-                await Task.Delay(40, cancellationToken); // let remote erase sequences settle
+                // Kill the remote line so nano/vim does not start and nothing is written to shell history.
+                await _session.SendAsync("\u0015", cancellationToken);
+                await Task.Delay(40, cancellationToken);
                 EchoInterceptedCommand(editorCommand);
                 await TryRecordAsync(editorCommand, CommandHistorySource.Interactive, cancellationToken);
                 await OpenFileEditorAsync(_session, filePath, cancellationToken);
@@ -199,6 +200,13 @@ public sealed partial class TerminalSessionViewModel : TerminalViewModelBase
     {
         if (_session is null) return;
         _session.WorkingDirectory = ShellWorkingDirectory.Apply(_session.WorkingDirectory, command);
+    }
+
+    protected override void NotePromptDirectory(string? directory)
+    {
+        if (_session is null || string.IsNullOrWhiteSpace(directory)) return;
+        if (directory.StartsWith('/') || directory == "~" || directory.StartsWith("~/"))
+            _session.WorkingDirectory = directory;
     }
 
     public void SetDropTargetVisible(bool visible)

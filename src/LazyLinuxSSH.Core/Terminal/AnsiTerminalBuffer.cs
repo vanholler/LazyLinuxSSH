@@ -106,6 +106,18 @@ public sealed class AnsiTerminalBuffer
         Updated?.Invoke(this, EventArgs.Empty);
     }
 
+    public string GetCursorLine()
+    {
+        lock (_sync)
+        {
+            if (_row < 0 || _row >= _lines.Count) return string.Empty;
+            var line = _lines[_row];
+            var builder = new StringBuilder(line.Count);
+            foreach (var cell in line) builder.Append(cell.Character);
+            return builder.ToString().TrimEnd();
+        }
+    }
+
     public TerminalSnapshot GetSnapshot()
     {
         lock (_sync)

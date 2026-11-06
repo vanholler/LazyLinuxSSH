@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -72,6 +73,9 @@ public sealed partial class MainWindowViewModel : ObservableObject
         themeService.ThemeChanged += OnThemeChanged;
         OpenNewTab();
     }
+
+    public string AppVersion { get; } = ReadAppVersion();
+    public string StatusBarTechLabel => $"{AppVersion}   ·   SSH.NET   ·   UTF-8   ·   PTY";
 
     public ObservableCollection<ConnectionGroup> Groups { get; } = [];
     public ObservableCollection<ConnectionGroupViewModel> VisibleGroups { get; } = [];
@@ -1100,4 +1104,19 @@ public sealed partial class MainWindowViewModel : ObservableObject
     }
 
     private void OnThemeChanged(object? sender, AppTheme theme) => IsDarkTheme = theme == AppTheme.Dark;
+
+    private static string ReadAppVersion()
+    {
+        var assembly = typeof(MainWindowViewModel).Assembly;
+        var informational = assembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            ?.InformationalVersion;
+        if (!string.IsNullOrWhiteSpace(informational))
+        {
+            var plus = informational.IndexOf('+');
+            return plus > 0 ? informational[..plus] : informational;
+        }
+
+        return assembly.GetName().Version?.ToString(3) ?? "0.0.0";
+    }
 }

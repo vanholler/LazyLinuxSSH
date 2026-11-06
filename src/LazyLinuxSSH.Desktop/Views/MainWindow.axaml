@@ -663,7 +663,7 @@
       <Grid ColumnDefinitions="Auto,*,Auto">
         <Ellipse Grid.Column="0" Width="8" Height="8" Fill="#69BE78" VerticalAlignment="Center" Margin="0,0,9,0" />
         <TextBlock Grid.Column="1" Text="{Binding StatusMessage}" Classes="muted" FontSize="11" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
-        <TextBlock Grid.Column="2" Text="SSH.NET   ·   UTF-8   ·   PTY" Classes="muted" FontSize="10" VerticalAlignment="Center" />
+        <TextBlock Grid.Column="2" Text="{Binding StatusBarTechLabel}" Classes="muted" FontSize="10" VerticalAlignment="Center" />
       </Grid>
     </Border>
 

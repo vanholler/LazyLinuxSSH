@@ -74,6 +74,23 @@ public abstract partial class TerminalViewModelBase : ObservableObject, IAsyncDi
 
     protected virtual Task ReloadCoreAsync() => Task.CompletedTask;
 
+    /// <summary>
+    /// On Enter, prefer the line readline is showing (tab completion, history arrows)
+    /// over the raw keystroke buffer, and take the directory from the prompt.
+    /// </summary>
+    protected void SyncInteractiveLineFromScreen(string input)
+    {
+        if (input is not ("\r" or "\n" or "\r\n")) return;
+        if (!ShellPrompt.TryReadInput(Buffer.GetCursorLine(), out var directory, out var command)) return;
+        NotePromptDirectory(directory);
+        _interactiveLine.Clear();
+        _interactiveLine.Append(command);
+    }
+
+    protected virtual void NotePromptDirectory(string? directory)
+    {
+    }
+
     protected string? GetCompletedEditorCommand(string input)
     {
         string? candidate = null;
@@ -104,9 +121,8 @@ public abstract partial class TerminalViewModelBase : ObservableObject, IAsyncDi
     protected void EchoInterceptedCommand(string command)
     {
         if (string.IsNullOrWhiteSpace(command)) return;
-        Buffer.Append(command.EndsWith('\n') || command.EndsWith('\r')
-            ? command
-            : command + "\r\n");
+        var text = command.TrimEnd('\r', '\n');
+        Buffer.Append("\r\n" + text + "\r\n");
     }
 
     protected async Task OpenFileEditorAsync(

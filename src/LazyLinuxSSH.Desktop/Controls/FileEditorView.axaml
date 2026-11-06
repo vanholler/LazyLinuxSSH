@@ -11,8 +11,10 @@
                      HorizontalAlignment="Center" VerticalAlignment="Center" />
         </Border>
         <StackPanel Grid.Column="1" VerticalAlignment="Center" MinWidth="0">
-          <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis" />
-          <TextBlock Text="{Binding FilePath}" Classes="mono muted" FontSize="10" TextTrimming="CharacterEllipsis" />
+          <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="13"
+                     TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding FileName}" />
+          <TextBlock Text="{Binding FilePath}" Classes="mono muted" FontSize="10"
+                     TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding FilePath}" />
         </StackPanel>
         <Button Grid.Column="2" Content="×" Command="{Binding CloseCommand}" Classes="ghost compact close"
                 Width="32" ToolTip.Tip="{DynamicResource 'Закрыть редактор'}" AutomationProperties.Name="{DynamicResource 'Закрыть редактор'}" />
