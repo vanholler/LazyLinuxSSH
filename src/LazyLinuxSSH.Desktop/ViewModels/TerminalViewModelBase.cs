@@ -97,6 +97,18 @@ public abstract partial class TerminalViewModelBase : ObservableObject, IAsyncDi
         _isSecretPrompt = false;
     }
 
+    /// <summary>
+    /// Ctrl+U clears the remote echo of an intercepted editor command; reprint it locally
+    /// so the user still sees what they typed (e.g. nano .env).
+    /// </summary>
+    protected void EchoInterceptedCommand(string command)
+    {
+        if (string.IsNullOrWhiteSpace(command)) return;
+        Buffer.Append(command.EndsWith('\n') || command.EndsWith('\r')
+            ? command
+            : command + "\r\n");
+    }
+
     protected async Task OpenFileEditorAsync(
         IFileTransferSession session,
         string? filePath,

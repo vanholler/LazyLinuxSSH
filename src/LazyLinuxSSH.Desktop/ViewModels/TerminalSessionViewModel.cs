@@ -112,7 +112,10 @@ public sealed partial class TerminalSessionViewModel : TerminalViewModelBase
             if (editorCommand is not null && Core.Services.EditorCommandParser.TryParse(editorCommand, out var filePath))
             {
                 ResetInteractiveLine();
+                // Wipe the remote line so nano/vim does not start, then keep the command visible locally.
                 await _session.SendAsync("\u0015\r", cancellationToken);
+                await Task.Delay(40, cancellationToken); // let remote erase sequences settle
+                EchoInterceptedCommand(editorCommand);
                 await TryRecordAsync(editorCommand, CommandHistorySource.Interactive, cancellationToken);
                 await OpenFileEditorAsync(_session, filePath, cancellationToken);
                 return;

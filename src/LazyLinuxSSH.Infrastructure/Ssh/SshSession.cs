@@ -23,7 +23,8 @@ public sealed class SshSession : ISshSession
     private SshSessionState _state = SshSessionState.Disconnected;
     private bool _disposed;
     private TaskCompletionSource<string>? _pwdWaiter;
-    private string? _pwdMarker;
+    private string? _pwdStartMarker;
+    private string? _pwdEndMarker;
 
     public SshSession(ConnectionProfile profile, ICredentialProtector credentialProtector)
     {
@@ -240,27 +241,31 @@ public sealed class SshSession : ISshSession
     /// <summary>
     /// Asks the interactive PTY for the real cwd. Tracking <c>cd</c> alone is not enough
     /// when the user reaches a folder another way or the local tracker drifts.
+    /// Uses only alphanumeric markers — no shell quotes — so bash/zsh never leave stray `'`.
     /// </summary>
     private async Task RefreshWorkingDirectoryFromShellAsync(CancellationToken cancellationToken)
     {
         if (_shell is null || _state != SshSessionState.Connected) return;
 
-        var marker = $"__LLSSH_PWD_{Guid.NewGuid():N}__";
+        var id = Guid.NewGuid().ToString("N");
+        var startMarker = $"LLSSHSTART{id}";
+        var endMarker = $"LLSSHEND{id}";
         var waiter = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
         lock (_pwdSync)
         {
-            _pwdMarker = marker;
+            _pwdStartMarker = startMarker;
+            _pwdEndMarker = endMarker;
             _pwdWaiter = waiter;
             _pwdAccumulator.Clear();
         }
 
-        // Clear any partial input, then print pwd between unique markers (hidden from the UI).
-        var probe = $"\u0015printf '%s%s%s\\n' '{marker}' \"$(pwd -P 2>/dev/null || pwd)\" '{marker}'\r";
+        // Clear partial input, then echo markers around pwd on their own lines (no quotes).
+        var probe = $"\u0015echo {startMarker};pwd -P;echo {endMarker}\r";
         try
         {
             await SendAsync(probe, cancellationToken);
             using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            timeout.CancelAfter(TimeSpan.FromSeconds(3));
+            timeout.CancelAfter(TimeSpan.FromSeconds(5));
             var pwd = (await waiter.Task.WaitAsync(timeout.Token)).Trim().TrimEnd('\r', '\n');
             if (pwd.StartsWith('/'))
                 WorkingDirectory = pwd;
@@ -275,12 +280,15 @@ public sealed class SshSession : ISshSession
         }
         finally
         {
+            // Keep filtering briefly so a late probe line is still swallowed after timeout.
+            await Task.Delay(200, CancellationToken.None);
             lock (_pwdSync)
             {
                 if (ReferenceEquals(_pwdWaiter, waiter))
                 {
                     _pwdWaiter = null;
-                    _pwdMarker = null;
+                    _pwdStartMarker = null;
+                    _pwdEndMarker = null;
                     _pwdAccumulator.Clear();
                 }
             }
@@ -291,20 +299,19 @@ public sealed class SshSession : ISshSession
     {
         lock (_pwdSync)
         {
-            if (_pwdWaiter is null || _pwdMarker is null) return text;
+            if (_pwdWaiter is null || _pwdStartMarker is null || _pwdEndMarker is null) return text;
 
             _pwdAccumulator.Append(text);
             var buffer = _pwdAccumulator.ToString();
-            var marker = _pwdMarker;
-            var start = buffer.IndexOf(marker, StringComparison.Ordinal);
+            var start = buffer.IndexOf(_pwdStartMarker, StringComparison.Ordinal);
             if (start < 0)
             {
-                // Hold output while the probe is active so the printf echo never flashes.
+                // Hold everything while the probe is active (including the echoed command).
                 return string.Empty;
             }
 
-            var afterStart = start + marker.Length;
-            var end = buffer.IndexOf(marker, afterStart, StringComparison.Ordinal);
+            var afterStart = start + _pwdStartMarker.Length;
+            var end = buffer.IndexOf(_pwdEndMarker, afterStart, StringComparison.Ordinal);
             if (end < 0)
             {
                 _pwdAccumulator.Clear();
@@ -312,15 +319,23 @@ public sealed class SshSession : ISshSession
                 return string.Empty;
             }
 
-            var pwd = buffer[afterStart..end].Trim().Trim('\r', '\n');
-            var remainder = buffer[(end + marker.Length)..];
-            // Drop a leading newline left after the marker line.
+            var between = buffer[afterStart..end];
+            var pwd = between
+                .Replace("\r\n", "\n", StringComparison.Ordinal)
+                .Replace('\r', '\n')
+                .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(line => line.Trim())
+                .FirstOrDefault(line => line.StartsWith('/'))
+                ?? between.Trim().Trim('\r', '\n');
+
+            var remainder = buffer[(end + _pwdEndMarker.Length)..];
             if (remainder.StartsWith('\r')) remainder = remainder[1..];
             if (remainder.StartsWith('\n')) remainder = remainder[1..];
 
             var waiter = _pwdWaiter;
             _pwdWaiter = null;
-            _pwdMarker = null;
+            _pwdStartMarker = null;
+            _pwdEndMarker = null;
             _pwdAccumulator.Clear();
             waiter.TrySetResult(pwd);
             return remainder;

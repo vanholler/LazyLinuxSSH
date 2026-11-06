@@ -76,6 +76,8 @@ public sealed partial class LocalTerminalViewModel : TerminalViewModelBase
                 ResetInteractiveLine();
                 EchoLocalInputIfRequired("\r");
                 await _session.SendAsync("\u0015\r", cancellationToken);
+                await Task.Delay(40, cancellationToken);
+                EchoInterceptedCommand(editorCommand);
                 await TryRecordAsync(editorCommand, CommandHistorySource.Interactive, cancellationToken);
                 await OpenFileEditorAsync(_session, filePath, cancellationToken);
                 return;

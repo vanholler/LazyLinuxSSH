@@ -27,8 +27,12 @@ public partial class TerminalView : UserControl
         InitializeComponent();
         Editor.Options.CutCopyWholeLine = false;
         Editor.TextArea.TextView.LineTransformers.Add(_colorizer);
+        // Attach to TextArea as well: on macOS IsReadOnly AvaloniaEdit often does not
+        // deliver TextInput to the outer TextEditor, so typing never reaches the SSH PTY.
         Editor.AddHandler(InputElement.TextInputEvent, OnTextInput, RoutingStrategies.Tunnel);
         Editor.AddHandler(InputElement.KeyDownEvent, OnKeyDown, RoutingStrategies.Tunnel);
+        Editor.TextArea.AddHandler(InputElement.TextInputEvent, OnTextInput, RoutingStrategies.Tunnel);
+        Editor.TextArea.AddHandler(InputElement.KeyDownEvent, OnKeyDown, RoutingStrategies.Tunnel);
         PointerPressed += OnPointerPressed;
         SizeChanged += OnSizeChanged;
         Editor.LayoutUpdated += OnEditorLayoutUpdated;
@@ -260,7 +264,7 @@ public partial class TerminalView : UserControl
 
     private void OnTextInput(object? sender, TextInputEventArgs args)
     {
-        if (string.IsNullOrEmpty(args.Text) || _viewModel is null) return;
+        if (args.Handled || string.IsNullOrEmpty(args.Text) || _viewModel is null) return;
         args.Handled = true;
         _viewModel.ActivateCommand.Execute(null);
         SendInput(args.Text);
@@ -268,34 +272,35 @@ public partial class TerminalView : UserControl
 
     private void OnKeyDown(object? sender, KeyEventArgs args)
     {
-        if (_viewModel is null) return;
+        if (_viewModel is null || args.Handled) return;
         _viewModel.ActivateCommand.Execute(null);
 
         var ctrl = args.KeyModifiers.HasFlag(KeyModifiers.Control);
+        var meta = args.KeyModifiers.HasFlag(KeyModifiers.Meta);
         var shift = args.KeyModifiers.HasFlag(KeyModifiers.Shift);
         var alt = args.KeyModifiers.HasFlag(KeyModifiers.Alt);
+        // On macOS Cmd is the primary accelerator; treat it like Ctrl for clipboard.
+        var primary = ctrl || meta;
 
-        // Terminal clipboard: Ctrl+Shift+C/V (and Insert variants). Ctrl+C copies when
-        // text is selected, otherwise it still sends SIGINT like a real terminal.
-        // Ctrl+V pastes — AvaloniaEdit's own Paste is disabled by IsReadOnly.
-        if (!alt && IsCopyShortcut(args.Key, ctrl, shift))
+        if (!alt && IsCopyShortcut(args.Key, primary, shift, meta))
         {
             args.Handled = true;
             _ = CopySafelyAsync();
             return;
         }
 
-        if (!alt && IsPasteShortcut(args.Key, ctrl, shift))
+        if (!alt && IsPasteShortcut(args.Key, primary, shift, meta))
         {
             args.Handled = true;
             _ = PasteSafelyAsync();
             return;
         }
 
-        if (ctrl && shift)
+        if (primary && shift)
             return;
 
-        if (ctrl && args.Key is >= Key.A and <= Key.Z)
+        // Ctrl+A..Z → terminal control codes. Do not map Cmd+letter that way on macOS.
+        if (ctrl && !meta && args.Key is >= Key.A and <= Key.Z)
         {
             args.Handled = true;
             SendInput(((char)(args.Key - Key.A + 1)).ToString());
@@ -320,23 +325,40 @@ public partial class TerminalView : UserControl
             _ => null
         };
 
-        if (input is null) return;
-        args.Handled = true;
-        SendInput(input);
+        if (input is not null)
+        {
+            args.Handled = true;
+            SendInput(input);
+            return;
+        }
+
+        // Fallback when TextInput does not fire (common on macOS with IsReadOnly editors).
+        // Windows already gets TextInput — applying KeySymbol there would duplicate characters.
+        if (OperatingSystem.IsMacOS() && !primary && !alt && !string.IsNullOrEmpty(args.KeySymbol))
+        {
+            var symbol = args.KeySymbol;
+            if (symbol.Length > 0 && !char.IsControl(symbol[0]))
+            {
+                args.Handled = true;
+                SendInput(symbol);
+            }
+        }
     }
 
-    private bool IsCopyShortcut(Key key, bool ctrl, bool shift)
+    private bool IsCopyShortcut(Key key, bool primary, bool shift, bool meta)
     {
-        if (ctrl && shift && key == Key.C) return true;
-        if (ctrl && !shift && key == Key.Insert) return true;
-        return ctrl && !shift && key == Key.C && !Editor.TextArea.Selection.IsEmpty;
+        if (primary && shift && key == Key.C) return true;
+        if (meta && !shift && key == Key.C) return true; // Cmd+C on macOS
+        if (primary && !shift && key == Key.Insert) return true;
+        return primary && !shift && key == Key.C && !Editor.TextArea.Selection.IsEmpty;
     }
 
-    private static bool IsPasteShortcut(Key key, bool ctrl, bool shift)
+    private static bool IsPasteShortcut(Key key, bool primary, bool shift, bool meta)
     {
-        if (ctrl && shift && key == Key.V) return true;
-        if (!ctrl && shift && key == Key.Insert) return true;
-        return ctrl && !shift && key == Key.V;
+        if (primary && shift && key == Key.V) return true;
+        if (meta && !shift && key == Key.V) return true; // Cmd+V on macOS
+        if (!primary && shift && key == Key.Insert) return true;
+        return primary && !shift && key == Key.V;
     }
 
     private void SendInput(string text) => _ = SendInputSafelyAsync(text);
