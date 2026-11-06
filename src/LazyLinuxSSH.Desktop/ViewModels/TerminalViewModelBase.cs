@@ -38,10 +38,15 @@ public abstract partial class TerminalViewModelBase : ObservableObject, IAsyncDi
     public virtual bool IsReconnectOverlayVisible => false;
     public abstract string StateLabel { get; }
     public bool IsFileEditorOpen => FileEditor is not null;
+    public virtual bool CanAcceptFileDrop => false;
+    public virtual bool IsFileDropOverlayVisible => false;
+    public virtual bool IsUploadInProgress => false;
+    public virtual string FileDropBannerText => string.Empty;
     protected abstract string HistoryServerName { get; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsFileEditorOpen))]
+    [NotifyPropertyChangedFor(nameof(CanAcceptFileDrop))]
     private FileEditorViewModel? _fileEditor;
     [ObservableProperty] private string _title = string.Empty;
     [ObservableProperty] private string _statusMessage = string.Empty;
@@ -137,7 +142,11 @@ public abstract partial class TerminalViewModelBase : ObservableObject, IAsyncDi
             {
                 if (character == '\n' && index > 0 && text[index - 1] == '\r') continue;
                 if (!_isSecretPrompt && _interactiveLine.Length > 0)
-                    await TryRecordAsync(_interactiveLine.ToString(), CommandHistorySource.Interactive, cancellationToken);
+                {
+                    var command = _interactiveLine.ToString();
+                    ObserveShellCommand(command);
+                    await TryRecordAsync(command, CommandHistorySource.Interactive, cancellationToken);
+                }
                 _interactiveLine.Clear();
                 _isSecretPrompt = false;
                 continue;
@@ -172,6 +181,10 @@ public abstract partial class TerminalViewModelBase : ObservableObject, IAsyncDi
         {
             // A history database problem must never interrupt an active terminal.
         }
+    }
+
+    protected virtual void ObserveShellCommand(string command)
+    {
     }
 
     private bool IsSecretPrompt()

@@ -89,12 +89,52 @@ public sealed class ConnectionEditorVisibilityTests
         Assert.True(editor.HasPassword);
     }
 
+    [Fact]
+    public async Task EditExisting_LoadsPasswordMasked_AndRequiresFullKeyPath()
+    {
+        var repository = new RecordingRepository();
+        var group = new ConnectionGroup { Id = Guid.NewGuid(), Name = "Test" };
+        repository.Groups.Add(group);
+        var existing = new ConnectionProfile
+        {
+            Id = Guid.NewGuid(),
+            Name = "API",
+            Host = "10.0.0.1",
+            Username = "root",
+            GroupId = group.Id,
+            EncryptedPassword = "protected:saved-secret"
+        };
+        var protector = new PrefixProtector();
+        var editor = new ConnectionEditorViewModel(repository, protector, repository.Groups, existing);
+        await editor.LoadSecretsAsync();
+
+        Assert.Equal("saved-secret", editor.Password);
+        Assert.False(editor.IsPasswordVisible);
+        Assert.Equal('•', editor.PasswordMask);
+
+        editor.SetAuthenticationCommand.Execute("1");
+        editor.PrivateKeyPath = "id_ed25519";
+        await editor.SaveCommand.ExecuteAsync(null);
+        Assert.Null(repository.SavedProfile);
+        Assert.Contains("полный путь", editor.ErrorMessage, StringComparison.OrdinalIgnoreCase);
+
+        editor.PrivateKeyPath = @"C:\Users\user\.ssh\id_ed25519";
+        await editor.SaveCommand.ExecuteAsync(null);
+        var saved = Assert.IsType<ConnectionProfile>(repository.SavedProfile);
+        Assert.Equal(AuthenticationMethod.PrivateKey, saved.AuthenticationMethod);
+        Assert.Equal(@"C:\Users\user\.ssh\id_ed25519", saved.PrivateKeyPath);
+    }
+
     private sealed class PrefixProtector : ICredentialProtector
     {
         public ValueTask<string?> ProtectAsync(string? plainText, CancellationToken cancellationToken = default) =>
             ValueTask.FromResult<string?>(plainText is null ? null : "protected:" + plainText);
         public ValueTask<string?> UnprotectAsync(string? protectedText, CancellationToken cancellationToken = default) =>
-            ValueTask.FromResult(protectedText);
+            ValueTask.FromResult(protectedText is null
+                ? null
+                : protectedText.StartsWith("protected:", StringComparison.Ordinal)
+                    ? protectedText["protected:".Length..]
+                    : protectedText);
     }
 
     private sealed class RecordingRepository : IConnectionRepository

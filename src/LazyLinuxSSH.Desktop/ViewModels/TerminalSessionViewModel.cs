@@ -2,6 +2,8 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LazyLinuxSSH.Core.Interfaces;
 using LazyLinuxSSH.Core.Models;
+using LazyLinuxSSH.Core.Services;
+using LazyLinuxSSH.Desktop.Services;
 
 namespace LazyLinuxSSH.Desktop.ViewModels;
 
@@ -10,6 +12,7 @@ public sealed partial class TerminalSessionViewModel : TerminalViewModelBase
     private readonly ISshSessionManager _sessionManager;
     private readonly ICommandSequenceExecutor _sequenceExecutor;
     private ISshSession? _session;
+    private CancellationTokenSource? _uploadLifetime;
 
     public TerminalSessionViewModel(
         ConnectionProfile profile,
@@ -41,12 +44,34 @@ public sealed partial class TerminalSessionViewModel : TerminalViewModelBase
         _ => "Отключено"
     };
     protected override string HistoryServerName => Profile.Name;
+    public override bool CanAcceptFileDrop =>
+        IsConnected && !IsFileEditorOpen && !IsUploadInProgress && !IsReconnectOverlayVisible;
+    public override bool IsFileDropOverlayVisible => IsDropTargetVisible || IsUploadInProgress;
+    public override string FileDropBannerText => IsUploadInProgress
+        ? AppText.T("Загрузка файла…")
+        : AppText.T("Залить файл в текущую директорию");
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsConnected))]
     [NotifyPropertyChangedFor(nameof(IsReconnectOverlayVisible))]
     [NotifyPropertyChangedFor(nameof(StateLabel))]
+    [NotifyPropertyChangedFor(nameof(CanAcceptFileDrop))]
     private SshSessionState _state = SshSessionState.Disconnected;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsFileDropOverlayVisible))]
+    private bool _isDropTargetVisible;
+
+    private bool _isUploadInProgress;
+    public override bool IsUploadInProgress => _isUploadInProgress;
+
+    private void SetUploadInProgress(bool value)
+    {
+        if (!SetProperty(ref _isUploadInProgress, value, nameof(IsUploadInProgress))) return;
+        OnPropertyChanged(nameof(IsFileDropOverlayVisible));
+        OnPropertyChanged(nameof(FileDropBannerText));
+        OnPropertyChanged(nameof(CanAcceptFileDrop));
+    }
 
     public async Task ConnectAsync(CancellationToken cancellationToken = default)
     {
@@ -126,6 +151,7 @@ public sealed partial class TerminalSessionViewModel : TerminalViewModelBase
                 }
                 else
                 {
+                    ObserveShellCommand(command);
                     await _sequenceExecutor.ExecuteAsync(_session, [command], TimeSpan.Zero, cancellationToken);
                 }
 
@@ -159,8 +185,66 @@ public sealed partial class TerminalSessionViewModel : TerminalViewModelBase
 
     public override async ValueTask DisposeAsync()
     {
+        _uploadLifetime?.Cancel();
+        _uploadLifetime?.Dispose();
+        _uploadLifetime = null;
         CloseFileEditor();
         await DetachAndDisposeSessionAsync();
+    }
+
+    protected override void ObserveShellCommand(string command)
+    {
+        if (_session is null) return;
+        _session.WorkingDirectory = ShellWorkingDirectory.Apply(_session.WorkingDirectory, command);
+    }
+
+    public void SetDropTargetVisible(bool visible)
+    {
+        if (IsUploadInProgress) return;
+        IsDropTargetVisible = visible && CanAcceptFileDrop;
+    }
+
+    public async Task UploadDroppedFileAsync(string localPath, CancellationToken cancellationToken = default)
+    {
+        IsDropTargetVisible = false;
+        if (_session is null || !CanAcceptFileDrop)
+        {
+            StatusMessage = "Нет активного SSH-соединения для загрузки файла.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(localPath) || !File.Exists(localPath) || Directory.Exists(localPath))
+        {
+            StatusMessage = "Можно загрузить только один обычный файл.";
+            return;
+        }
+
+        var fileName = Path.GetFileName(localPath);
+        _uploadLifetime?.Cancel();
+        _uploadLifetime?.Dispose();
+        _uploadLifetime = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        var token = _uploadLifetime.Token;
+
+        SetUploadInProgress(true);
+        StatusMessage = $"Загрузка «{fileName}»…";
+        try
+        {
+            await _session.UploadFileAsync(localPath, fileName, token);
+            StatusMessage = $"Файл «{fileName}» загружен в текущую директорию.";
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            StatusMessage = "Загрузка файла отменена.";
+        }
+        catch (Exception exception)
+        {
+            StatusMessage = $"Не удалось загрузить файл: {exception.Message}";
+        }
+        finally
+        {
+            SetUploadInProgress(false);
+            IsDropTargetVisible = false;
+        }
     }
 
     private void OnOutputReceived(object? sender, string output) => Buffer.Append(output);

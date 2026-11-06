@@ -73,7 +73,9 @@ public sealed partial class FileEditorViewModel : ObservableObject, IDisposable
             _suppressDirty = false;
             IsDirty = false;
             DocumentLabel = $"{CountLines(file.Text)} {FormatLines(CountLines(file.Text))} · UTF-8";
-            StatusMessage = file.Exists ? "Файл открыт. Ctrl+S — сохранить." : "Новый файл. Ctrl+S — создать на сервере.";
+            StatusMessage = file.Exists
+                ? $"Файл открыт: {file.Path}"
+                : $"Файл не найден ({file.Path}). Ctrl+S — создать на сервере.";
         }
         catch (OperationCanceledException) when (_lifetime.IsCancellationRequested)
         {

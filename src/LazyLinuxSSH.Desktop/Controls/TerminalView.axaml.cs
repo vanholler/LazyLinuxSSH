@@ -4,6 +4,7 @@ using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
@@ -24,6 +25,7 @@ public partial class TerminalView : UserControl
     public TerminalView()
     {
         InitializeComponent();
+        Editor.Options.CutCopyWholeLine = false;
         Editor.TextArea.TextView.LineTransformers.Add(_colorizer);
         Editor.AddHandler(InputElement.TextInputEvent, OnTextInput, RoutingStrategies.Tunnel);
         Editor.AddHandler(InputElement.KeyDownEvent, OnKeyDown, RoutingStrategies.Tunnel);
@@ -33,6 +35,10 @@ public partial class TerminalView : UserControl
         DataContextChanged += OnDataContextChanged;
         AttachedToVisualTree += OnAttachedToVisualTree;
         DetachedFromVisualTree += OnDetachedFromVisualTree;
+        AddHandler(DragDrop.DragEnterEvent, OnDragEnter);
+        AddHandler(DragDrop.DragOverEvent, OnDragOver);
+        AddHandler(DragDrop.DragLeaveEvent, OnDragLeave);
+        AddHandler(DragDrop.DropEvent, OnDrop);
     }
 
     private void OnDataContextChanged(object? sender, EventArgs args)
@@ -85,11 +91,40 @@ public partial class TerminalView : UserControl
         // The color spans and document must always belong to the same snapshot. Updating
         // the transformer first also keeps rendering safe when a tab changes its session.
         _colorizer.SetSnapshot(snapshot);
-        if (!string.Equals(Editor.Document.Text, snapshot.Text, StringComparison.Ordinal))
+
+        var hadSelection = !Editor.TextArea.Selection.IsEmpty;
+        var selectionStart = 0;
+        var selectionLength = 0;
+        if (hadSelection)
+        {
+            var segment = Editor.TextArea.Selection.SurroundingSegment;
+            if (segment is not null)
+            {
+                selectionStart = segment.Offset;
+                selectionLength = segment.Length;
+            }
+            else
+            {
+                hadSelection = false;
+            }
+        }
+
+        var textChanged = !string.Equals(Editor.Document.Text, snapshot.Text, StringComparison.Ordinal);
+        if (textChanged)
             Editor.Document.Text = snapshot.Text;
-        Editor.CaretOffset = Math.Min(snapshot.Text.Length, Editor.Document.TextLength);
+
+        if (hadSelection && selectionStart + selectionLength <= Editor.Document.TextLength)
+        {
+            // Keep the selection across buffer refreshes so copy shortcuts still work.
+            Editor.Select(selectionStart, selectionLength);
+        }
+        else if (textChanged)
+        {
+            Editor.CaretOffset = Math.Min(snapshot.Text.Length, Editor.Document.TextLength);
+            QueueScrollToLatest();
+        }
+
         Editor.TextArea.TextView.InvalidateVisual();
-        QueueScrollToLatest();
     }
 
     private void OnSizeChanged(object? sender, SizeChangedEventArgs args)
@@ -135,6 +170,94 @@ public partial class TerminalView : UserControl
         Editor.TextArea.Focus();
     }
 
+    private void OnDragEnter(object? sender, DragEventArgs args)
+    {
+        if (!TryGetDropSession(out var session) || !HasSingleFile(args))
+        {
+            args.DragEffects = DragDropEffects.None;
+            return;
+        }
+
+        args.DragEffects = DragDropEffects.Copy;
+        session.SetDropTargetVisible(true);
+        args.Handled = true;
+    }
+
+    private void OnDragOver(object? sender, DragEventArgs args)
+    {
+        if (!TryGetDropSession(out var session) || !HasSingleFile(args))
+        {
+            args.DragEffects = DragDropEffects.None;
+            if (_viewModel is TerminalSessionViewModel current)
+                current.SetDropTargetVisible(false);
+            return;
+        }
+
+        args.DragEffects = DragDropEffects.Copy;
+        session.SetDropTargetVisible(true);
+        args.Handled = true;
+    }
+
+    private void OnDragLeave(object? sender, DragEventArgs args)
+    {
+        if (_viewModel is TerminalSessionViewModel session)
+            session.SetDropTargetVisible(false);
+    }
+
+    private async void OnDrop(object? sender, DragEventArgs args)
+    {
+        if (!TryGetDropSession(out var session))
+        {
+            args.DragEffects = DragDropEffects.None;
+            return;
+        }
+
+        var path = TryGetSingleFilePath(args);
+        session.SetDropTargetVisible(false);
+        if (path is null)
+        {
+            session.StatusMessage = "Можно загрузить только один обычный файл.";
+            return;
+        }
+
+        args.Handled = true;
+        await session.UploadDroppedFileAsync(path);
+    }
+
+    private bool TryGetDropSession(out TerminalSessionViewModel session)
+    {
+        if (_viewModel is TerminalSessionViewModel candidate && candidate.CanAcceptFileDrop)
+        {
+            session = candidate;
+            return true;
+        }
+
+        session = null!;
+        return false;
+    }
+
+    private static bool HasSingleFile(DragEventArgs args)
+    {
+        if (!args.DataTransfer.Contains(DataFormat.File)) return false;
+        var files = args.DataTransfer.TryGetFiles()?.ToArray();
+        return files is { Length: 1 };
+    }
+
+    private static string? TryGetSingleFilePath(DragEventArgs args)
+    {
+        if (!args.DataTransfer.Contains(DataFormat.File)) return null;
+        var files = args.DataTransfer.TryGetFiles()?.ToArray();
+        if (files is not { Length: 1 }) return null;
+
+        var path = files[0].TryGetLocalPath();
+        if (string.IsNullOrWhiteSpace(path))
+            path = files[0].Path?.LocalPath;
+
+        return !string.IsNullOrWhiteSpace(path) && File.Exists(path) && !Directory.Exists(path)
+            ? path
+            : null;
+    }
+
     private void OnTextInput(object? sender, TextInputEventArgs args)
     {
         if (string.IsNullOrEmpty(args.Text) || _viewModel is null) return;
@@ -147,17 +270,32 @@ public partial class TerminalView : UserControl
     {
         if (_viewModel is null) return;
         _viewModel.ActivateCommand.Execute(null);
-        if (args.KeyModifiers.HasFlag(KeyModifiers.Control) && args.KeyModifiers.HasFlag(KeyModifiers.Shift))
+
+        var ctrl = args.KeyModifiers.HasFlag(KeyModifiers.Control);
+        var shift = args.KeyModifiers.HasFlag(KeyModifiers.Shift);
+        var alt = args.KeyModifiers.HasFlag(KeyModifiers.Alt);
+
+        // Terminal clipboard: Ctrl+Shift+C/V (and Insert variants). Ctrl+C copies when
+        // text is selected, otherwise it still sends SIGINT like a real terminal.
+        // Ctrl+V pastes — AvaloniaEdit's own Paste is disabled by IsReadOnly.
+        if (!alt && IsCopyShortcut(args.Key, ctrl, shift))
         {
-            if (args.Key == Key.V)
-            {
-                args.Handled = true;
-                _ = PasteSafelyAsync();
-            }
-            return; // Ctrl+Shift+C remains the editor's copy shortcut.
+            args.Handled = true;
+            _ = CopySafelyAsync();
+            return;
         }
 
-        if (args.KeyModifiers.HasFlag(KeyModifiers.Control) && args.Key is >= Key.A and <= Key.Z)
+        if (!alt && IsPasteShortcut(args.Key, ctrl, shift))
+        {
+            args.Handled = true;
+            _ = PasteSafelyAsync();
+            return;
+        }
+
+        if (ctrl && shift)
+            return;
+
+        if (ctrl && args.Key is >= Key.A and <= Key.Z)
         {
             args.Handled = true;
             SendInput(((char)(args.Key - Key.A + 1)).ToString());
@@ -187,6 +325,20 @@ public partial class TerminalView : UserControl
         SendInput(input);
     }
 
+    private bool IsCopyShortcut(Key key, bool ctrl, bool shift)
+    {
+        if (ctrl && shift && key == Key.C) return true;
+        if (ctrl && !shift && key == Key.Insert) return true;
+        return ctrl && !shift && key == Key.C && !Editor.TextArea.Selection.IsEmpty;
+    }
+
+    private static bool IsPasteShortcut(Key key, bool ctrl, bool shift)
+    {
+        if (ctrl && shift && key == Key.V) return true;
+        if (!ctrl && shift && key == Key.Insert) return true;
+        return ctrl && !shift && key == Key.V;
+    }
+
     private void SendInput(string text) => _ = SendInputSafelyAsync(text);
 
     private async Task SendInputSafelyAsync(string text)
@@ -198,6 +350,23 @@ public partial class TerminalView : UserControl
         catch (Exception exception)
         {
             if (_viewModel is not null) _viewModel.StatusMessage = $"Ошибка ввода: {exception.Message}";
+        }
+    }
+
+    private async Task CopySafelyAsync()
+    {
+        try
+        {
+            if (_viewModel is null || Editor.TextArea.Selection.IsEmpty) return;
+            var text = Editor.SelectedText;
+            if (string.IsNullOrEmpty(text)) return;
+            var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
+            if (clipboard is null) return;
+            await clipboard.SetTextAsync(text);
+        }
+        catch (Exception exception)
+        {
+            if (_viewModel is not null) _viewModel.StatusMessage = $"Не удалось скопировать текст: {exception.Message}";
         }
     }
 

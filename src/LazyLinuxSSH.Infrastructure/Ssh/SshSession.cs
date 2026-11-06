@@ -1,8 +1,10 @@
 using System.Text;
 using LazyLinuxSSH.Core.Interfaces;
 using LazyLinuxSSH.Core.Models;
+using LazyLinuxSSH.Core.Services;
 using LazyLinuxSSH.Infrastructure.Files;
 using Renci.SshNet;
+using Renci.SshNet.Common;
 using SshAuthenticationMethod = Renci.SshNet.AuthenticationMethod;
 
 namespace LazyLinuxSSH.Infrastructure.Ssh;
@@ -12,12 +14,16 @@ public sealed class SshSession : ISshSession
     private readonly ICredentialProtector _credentialProtector;
     private readonly List<IDisposable> _keyFiles = [];
     private readonly SemaphoreSlim _writeLock = new(1, 1);
+    private readonly object _pwdSync = new();
+    private readonly StringBuilder _pwdAccumulator = new();
     private CancellationTokenSource? _lifetime;
     private SshClient? _client;
     private ShellStream? _shell;
     private Task? _readTask;
     private SshSessionState _state = SshSessionState.Disconnected;
     private bool _disposed;
+    private TaskCompletionSource<string>? _pwdWaiter;
+    private string? _pwdMarker;
 
     public SshSession(ConnectionProfile profile, ICredentialProtector credentialProtector)
     {
@@ -29,6 +35,7 @@ public sealed class SshSession : ISshSession
     public ConnectionProfile Profile { get; }
     public SshSessionState State => _state;
     public DateTimeOffset? LastOutputAt { get; private set; }
+    public string? WorkingDirectory { get; set; }
     public event EventHandler<string>? OutputReceived;
     public event EventHandler<SshSessionState>? StateChanged;
 
@@ -89,16 +96,23 @@ public sealed class SshSession : ISshSession
         ObjectDisposedException.ThrowIf(_disposed, this);
         using var client = await CreateConnectedSftpClientAsync(cancellationToken);
         var fullPath = await ResolveRemotePathAsync(client, path, cancellationToken);
-        var attributes = await client.GetAttributesAsync(fullPath, cancellationToken);
-        if (attributes is null) return new TextFileContent(fullPath, string.Empty, false);
-        if (attributes.IsDirectory) throw new InvalidDataException("Укажите файл, а не каталог.");
-        if (attributes.Size > TextFileReader.MaxTextFileBytes)
-            throw new InvalidDataException("Файл больше 16 МБ. Для безопасной работы редактор открывает только текстовые файлы до 16 МБ.");
+        try
+        {
+            var attributes = await client.GetAttributesAsync(fullPath, cancellationToken);
+            if (attributes is null) return new TextFileContent(fullPath, string.Empty, false);
+            if (attributes.IsDirectory) throw new InvalidDataException("Укажите файл, а не каталог.");
+            if (attributes.Size > TextFileReader.MaxTextFileBytes)
+                throw new InvalidDataException("Файл больше 16 МБ. Для безопасной работы редактор открывает только текстовые файлы до 16 МБ.");
 
-        await using var memory = new MemoryStream();
-        await client.DownloadFileAsync(fullPath, memory, cancellationToken);
-        memory.Position = 0;
-        return new TextFileContent(fullPath, await TextFileReader.ReadAsync(memory, cancellationToken), true);
+            await using var memory = new MemoryStream();
+            await client.DownloadFileAsync(fullPath, memory, cancellationToken);
+            memory.Position = 0;
+            return new TextFileContent(fullPath, await TextFileReader.ReadAsync(memory, cancellationToken), true);
+        }
+        catch (SftpPathNotFoundException)
+        {
+            return new TextFileContent(fullPath, string.Empty, false);
+        }
     }
 
     public async Task WriteTextFileAsync(string path, string content, CancellationToken cancellationToken = default)
@@ -118,6 +132,24 @@ public sealed class SshSession : ISshSession
         var fullPath = await ResolveRemotePathAsync(client, remotePath, cancellationToken);
         await using var destination = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None, 81920, true);
         await client.DownloadFileAsync(fullPath, destination, cancellationToken);
+    }
+
+    public async Task UploadFileAsync(string localPath, string remoteFileName, CancellationToken cancellationToken = default)
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        if (string.IsNullOrWhiteSpace(localPath)) throw new ArgumentException("Укажите локальный файл.", nameof(localPath));
+        if (string.IsNullOrWhiteSpace(remoteFileName)) throw new ArgumentException("Укажите имя файла на сервере.", nameof(remoteFileName));
+        if (!File.Exists(localPath)) throw new FileNotFoundException("Локальный файл не найден.", localPath);
+        if (Directory.Exists(localPath)) throw new InvalidDataException("Можно загрузить только один файл, не каталог.");
+
+        var safeName = Path.GetFileName(remoteFileName.Replace('\\', '/').TrimEnd('/'));
+        if (string.IsNullOrWhiteSpace(safeName) || safeName is "." or "..")
+            throw new ArgumentException("Некорректное имя файла на сервере.", nameof(remoteFileName));
+
+        using var client = await CreateConnectedSftpClientAsync(cancellationToken);
+        var fullPath = await ResolveRemotePathAsync(client, safeName, cancellationToken);
+        await using var source = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read, 81920, true);
+        await client.UploadFileAsync(source, fullPath, cancellationToken);
     }
 
     public Task<bool> CheckHealthAsync(CancellationToken cancellationToken = default)
@@ -187,17 +219,112 @@ public sealed class SshSession : ISshSession
         }
     }
 
-    private static async Task<string> ResolveRemotePathAsync(
+    private async Task<string> ResolveRemotePathAsync(
         SftpClient client,
         string path,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("Укажите путь к файлу.", nameof(path));
-        if (path.StartsWith('/')) return path;
         var home = (await client.GetAsync(".", cancellationToken)).FullName.TrimEnd('/');
-        if (path == "~") return home;
-        if (path.StartsWith("~/", StringComparison.Ordinal)) return $"{home}/{path[2..]}";
-        return $"{home}/{path}";
+        if (NeedsShellWorkingDirectory(path))
+            await RefreshWorkingDirectoryFromShellAsync(cancellationToken);
+        return ShellWorkingDirectory.ResolveAgainstHome(WorkingDirectory, home, path);
+    }
+
+    private static bool NeedsShellWorkingDirectory(string path) =>
+        !string.IsNullOrWhiteSpace(path) &&
+        path != "~" &&
+        !path.StartsWith('/') &&
+        !path.StartsWith("~/") &&
+        !path.StartsWith("~\\");
+
+    /// <summary>
+    /// Asks the interactive PTY for the real cwd. Tracking <c>cd</c> alone is not enough
+    /// when the user reaches a folder another way or the local tracker drifts.
+    /// </summary>
+    private async Task RefreshWorkingDirectoryFromShellAsync(CancellationToken cancellationToken)
+    {
+        if (_shell is null || _state != SshSessionState.Connected) return;
+
+        var marker = $"__LLSSH_PWD_{Guid.NewGuid():N}__";
+        var waiter = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+        lock (_pwdSync)
+        {
+            _pwdMarker = marker;
+            _pwdWaiter = waiter;
+            _pwdAccumulator.Clear();
+        }
+
+        // Clear any partial input, then print pwd between unique markers (hidden from the UI).
+        var probe = $"\u0015printf '%s%s%s\\n' '{marker}' \"$(pwd -P 2>/dev/null || pwd)\" '{marker}'\r";
+        try
+        {
+            await SendAsync(probe, cancellationToken);
+            using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            timeout.CancelAfter(TimeSpan.FromSeconds(3));
+            var pwd = (await waiter.Task.WaitAsync(timeout.Token)).Trim().TrimEnd('\r', '\n');
+            if (pwd.StartsWith('/'))
+                WorkingDirectory = pwd;
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            // Timed out — keep the last known WorkingDirectory / fall back to home.
+        }
+        catch
+        {
+            // Best-effort; relative paths still fall back to home.
+        }
+        finally
+        {
+            lock (_pwdSync)
+            {
+                if (ReferenceEquals(_pwdWaiter, waiter))
+                {
+                    _pwdWaiter = null;
+                    _pwdMarker = null;
+                    _pwdAccumulator.Clear();
+                }
+            }
+        }
+    }
+
+    private string FilterPwdProbeOutput(string text)
+    {
+        lock (_pwdSync)
+        {
+            if (_pwdWaiter is null || _pwdMarker is null) return text;
+
+            _pwdAccumulator.Append(text);
+            var buffer = _pwdAccumulator.ToString();
+            var marker = _pwdMarker;
+            var start = buffer.IndexOf(marker, StringComparison.Ordinal);
+            if (start < 0)
+            {
+                // Hold output while the probe is active so the printf echo never flashes.
+                return string.Empty;
+            }
+
+            var afterStart = start + marker.Length;
+            var end = buffer.IndexOf(marker, afterStart, StringComparison.Ordinal);
+            if (end < 0)
+            {
+                _pwdAccumulator.Clear();
+                _pwdAccumulator.Append(buffer[start..]);
+                return string.Empty;
+            }
+
+            var pwd = buffer[afterStart..end].Trim().Trim('\r', '\n');
+            var remainder = buffer[(end + marker.Length)..];
+            // Drop a leading newline left after the marker line.
+            if (remainder.StartsWith('\r')) remainder = remainder[1..];
+            if (remainder.StartsWith('\n')) remainder = remainder[1..];
+
+            var waiter = _pwdWaiter;
+            _pwdWaiter = null;
+            _pwdMarker = null;
+            _pwdAccumulator.Clear();
+            waiter.TrySetResult(pwd);
+            return remainder;
+        }
     }
 
     private async Task<SshAuthenticationMethod[]> CreateAuthenticationMethodsAsync(CancellationToken cancellationToken)
@@ -242,8 +369,10 @@ public sealed class SshSession : ISshSession
                     out _, out var charsUsed, out _);
                 if (charsUsed > 0)
                 {
+                    var chunk = FilterPwdProbeOutput(new string(characters, 0, charsUsed));
+                    if (chunk.Length == 0) continue;
                     LastOutputAt = DateTimeOffset.UtcNow;
-                    OutputReceived?.Invoke(this, new string(characters, 0, charsUsed));
+                    OutputReceived?.Invoke(this, chunk);
                 }
             }
         }

@@ -421,13 +421,13 @@ public sealed partial class MainWindowViewModel : ObservableObject
     private async Task NewConnection()
     {
         if (Groups.Count == 0) await LoadConnectionsAsync();
-        OpenConnectionEditor(null);
+        await OpenConnectionEditorAsync(null);
     }
 
     [RelayCommand]
-    private void EditConnection(ConnectionProfile? profile)
+    private async Task EditConnection(ConnectionProfile? profile)
     {
-        if (profile is not null) OpenConnectionEditor(profile);
+        if (profile is not null) await OpenConnectionEditorAsync(profile);
     }
 
     [RelayCommand]
@@ -929,9 +929,10 @@ public sealed partial class MainWindowViewModel : ObservableObject
         OnPropertyChanged(nameof(HistorySummary));
     }
 
-    private void OpenConnectionEditor(ConnectionProfile? profile)
+    private async Task OpenConnectionEditorAsync(ConnectionProfile? profile)
     {
         var editor = new ConnectionEditorViewModel(_connectionRepository, _credentialProtector, Groups, profile);
+        await editor.LoadSecretsAsync();
         editor.Saved += OnConnectionSaved;
         editor.Cancelled += OnConnectionCancelled;
         ConnectionEditor = editor;

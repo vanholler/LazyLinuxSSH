@@ -213,6 +213,7 @@ public sealed class CommandSequenceExecutorTests
         public ConnectionProfile Profile { get; } = new();
         public SshSessionState State => SshSessionState.Connected;
         public DateTimeOffset? LastOutputAt => null;
+        public string? WorkingDirectory { get; set; }
         public event EventHandler<string>? OutputReceived { add { } remove { } }
         public event EventHandler<SshSessionState>? StateChanged { add { } remove { } }
         public Task ConnectAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
@@ -226,6 +227,7 @@ public sealed class CommandSequenceExecutorTests
             Task.FromResult(new TextFileContent(path, string.Empty, false));
         public Task WriteTextFileAsync(string path, string content, CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task DownloadFileAsync(string remotePath, string localPath, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task UploadFileAsync(string localPath, string remoteFileName, CancellationToken cancellationToken = default) => Task.CompletedTask;
         public void MarkStale() { }
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }

@@ -32,6 +32,7 @@ public sealed class LocalShellSession : ILocalShellSession
     public string ShellName { get; private set; } = OperatingSystem.IsWindows() ? "cmd.exe" : "shell";
     public bool IsRunning => _isRunning && !_isDisposed;
     public bool RequiresLocalEcho => OperatingSystem.IsWindows();
+    public string? WorkingDirectory { get; set; }
     public event EventHandler<string>? OutputReceived;
     public event EventHandler? Exited;
 
@@ -56,7 +57,11 @@ public sealed class LocalShellSession : ILocalShellSession
         };
 
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        if (!string.IsNullOrWhiteSpace(home) && Directory.Exists(home)) startInfo.WorkingDirectory = home;
+        if (!string.IsNullOrWhiteSpace(home) && Directory.Exists(home))
+        {
+            startInfo.WorkingDirectory = home;
+            WorkingDirectory = home;
+        }
 
         var process = new Process { StartInfo = startInfo, EnableRaisingEvents = false };
         try
@@ -130,14 +135,42 @@ public sealed class LocalShellSession : ILocalShellSession
         await source.CopyToAsync(destination, cancellationToken);
     }
 
-    private static string ResolveLocalPath(string path)
+    public async Task UploadFileAsync(string localPath, string remoteFileName, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(localPath)) throw new ArgumentException("Укажите локальный файл.", nameof(localPath));
+        if (string.IsNullOrWhiteSpace(remoteFileName)) throw new ArgumentException("Укажите имя файла.", nameof(remoteFileName));
+        if (!File.Exists(localPath)) throw new FileNotFoundException("Локальный файл не найден.", localPath);
+        if (Directory.Exists(localPath)) throw new InvalidDataException("Можно загрузить только один файл, не каталог.");
+
+        var safeName = Path.GetFileName(remoteFileName.Replace('\\', '/').TrimEnd('/'));
+        if (string.IsNullOrWhiteSpace(safeName) || safeName is "." or "..")
+            throw new ArgumentException("Некорректное имя файла.", nameof(remoteFileName));
+
+        var destinationPath = ResolveLocalPath(safeName);
+        var comparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+        if (string.Equals(Path.GetFullPath(localPath), destinationPath, comparison)) return;
+
+        await using var source = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read, 81920, true);
+        await using var destination = new FileStream(destinationPath, FileMode.Create, FileAccess.Write, FileShare.None, 81920, true);
+        await source.CopyToAsync(destination, cancellationToken);
+    }
+
+    private string ResolveLocalPath(string path)
     {
         if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("Укажите путь к файлу.", nameof(path));
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         if (path == "~") return home;
         if (path.StartsWith("~/", StringComparison.Ordinal) || path.StartsWith("~\\", StringComparison.Ordinal))
-            path = Path.Combine(home, path[2..]);
-        return Path.IsPathRooted(path) ? Path.GetFullPath(path) : Path.GetFullPath(path, home);
+            return Path.GetFullPath(Path.Combine(home, path[2..]));
+        if (Path.IsPathRooted(path)) return Path.GetFullPath(path);
+
+        var baseDirectory = string.IsNullOrWhiteSpace(WorkingDirectory) ? home : WorkingDirectory;
+        if (baseDirectory.StartsWith("~/", StringComparison.Ordinal) || baseDirectory.StartsWith("~\\", StringComparison.Ordinal))
+            baseDirectory = Path.Combine(home, baseDirectory[2..]);
+        else if (baseDirectory == "~")
+            baseDirectory = home;
+
+        return Path.GetFullPath(path, baseDirectory);
     }
 
     public async ValueTask DisposeAsync()

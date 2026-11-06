@@ -704,10 +704,13 @@
             <StackPanel Spacing="7" IsVisible="{Binding HasPassword}">
               <TextBlock Text="{DynamicResource 'Пароль'}" FontWeight="SemiBold" />
               <Grid><TextBox Classes="editor-input" Text="{Binding Password}" PasswordChar="{Binding PasswordMask}" Padding="12,0,48,0" Watermark="{DynamicResource 'Введите пароль'}" /><Button Classes="password-toggle" Command="{Binding TogglePasswordVisibilityCommand}" HorizontalAlignment="Right" VerticalAlignment="Center" ToolTip.Tip="{DynamicResource 'Показать или скрыть пароль'}" AutomationProperties.Name="{DynamicResource 'Показать или скрыть пароль'}"><Grid Width="22" Height="18"><PathIcon Width="20" Height="16" Data="M1,12 C4,6 8,3 12,3 C16,3 20,6 23,12 C20,18 16,21 12,21 C8,21 4,18 1,12 Z M12,8 A4,4 0 1,0 12,16 A4,4 0 1,0 12,8" /><TextBlock Text="╱" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsPasswordVisible}" /></Grid></Button></Grid>
-              <TextBlock Text="{DynamicResource 'Оставьте пустым, чтобы не менять сохранённый пароль'}" Classes="muted" FontSize="11" IsVisible="{Binding IsExisting}" />
             </StackPanel>
             <StackPanel Spacing="12" IsVisible="{Binding IsPrivateKey}">
-              <StackPanel Spacing="7"><TextBlock Text="{DynamicResource 'Путь к закрытому ключу'}" FontWeight="SemiBold" /><TextBox Classes="editor-input" Text="{Binding PrivateKeyPath}" Watermark="/home/user/.ssh/id_ed25519" /></StackPanel>
+              <StackPanel Spacing="7">
+                <TextBlock Text="{DynamicResource 'Путь к закрытому ключу'}" FontWeight="SemiBold" />
+                <TextBox Classes="editor-input" Text="{Binding PrivateKeyPath}" Watermark="C:\Users\user\.ssh\id_ed25519" />
+                <TextBlock Text="{DynamicResource 'Укажите полный путь к файлу ключа'}" Classes="muted" FontSize="11" TextWrapping="Wrap" />
+              </StackPanel>
               <StackPanel Spacing="7"><TextBlock Text="{DynamicResource 'Парольная фраза (необязательно)'}" FontWeight="SemiBold" /><Grid><TextBox Classes="editor-input" Text="{Binding Passphrase}" PasswordChar="{Binding PassphraseMask}" Padding="12,0,48,0" Watermark="{DynamicResource 'Оставьте пустым, если не требуется'}" /><Button Classes="password-toggle" Command="{Binding TogglePassphraseVisibilityCommand}" HorizontalAlignment="Right" VerticalAlignment="Center" ToolTip.Tip="{DynamicResource 'Показать или скрыть парольную фразу'}" AutomationProperties.Name="{DynamicResource 'Показать или скрыть парольную фразу'}"><Grid Width="22" Height="18"><PathIcon Width="20" Height="16" Data="M1,12 C4,6 8,3 12,3 C16,3 20,6 23,12 C20,18 16,21 12,21 C8,21 4,18 1,12 Z M12,8 A4,4 0 1,0 12,16 A4,4 0 1,0 12,8" /><TextBlock Text="╱" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsPassphraseVisible}" /></Grid></Button></Grid></StackPanel>
             </StackPanel>
             <Border Classes="advanced-panel">

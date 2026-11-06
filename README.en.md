@@ -76,7 +76,8 @@ Create a sequence of one or more commands, save it locally, and run it in the ac
 | Platform | Status |
 | --- | --- |
 | **Windows x64** | Available now |
-| **macOS** | Support is planned for later |
+| **macOS Apple Silicon** (`osx-arm64`) | Build `.dmg` on a MacBook |
+| **macOS Intel** (`osx-x64`) | Build `.dmg` on a MacBook |
 
 ## Windows installation
 
@@ -88,12 +89,23 @@ The latest installer will be published in the **Releases** section of this GitHu
 
 The installer provides a self-contained build, so you do not need to install the .NET Runtime separately. An uninstaller is added automatically. To remove the application, use **Windows Settings → Apps → Installed apps → LazyLinuxSSH**. User data in `%APPDATA%\LazyLinuxSSH` is preserved during uninstallation.
 
+## macOS installation
+
+Build the `.dmg` files on a MacBook (the script publishes both runtimes itself — a separate `dotnet build` is not required):
+
+```bash
+chmod +x installer/build-macos.sh
+./installer/build-macos.sh 1.0.0
+```
+
+Output: `artifacts/installer/LazyLinuxSSH-1.0.0-osx-arm64.dmg` and `...-osx-x64.dmg`. Details: [installer/Установка-macOS.md](installer/Установка-macOS.md). Unsigned build: first launch via **Right-click → Open**.
+
 ## Run from source
 
 ### Requirements
 
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0);
-- Windows for the currently supported application configuration.
+- Windows or macOS.
 
 Clone the repository, open a terminal in its root directory, and run:
 
@@ -110,21 +122,23 @@ dotnet run --project src/LazyLinuxSSH.Desktop/LazyLinuxSSH.Desktop.csproj -c Rel
 
 ### Build the installer yourself
 
-On Windows, also install **Inno Setup 6 or 7**, then run this command in PowerShell from the project root:
+**Windows** — install **Inno Setup 6 or 7**, then from the project root:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\installer\build-installer.ps1 -Version 1.0.0
 ```
 
-The result will be available here:
+Output: `artifacts\installer\LazyLinuxSSH-Setup-1.0.0-win-x64.exe`. Details: [installer/Установка-и-удаление.md](installer/Установка-и-удаление.md).
 
-```text
-artifacts\installer\LazyLinuxSSH-Setup-1.0.0-win-x64.exe
+**macOS** — on a MacBook:
+
+```bash
+./installer/build-macos.sh 1.0.0
 ```
 
-The script performs restore, Windows x64 self-contained publish, and installer/uninstaller build in sequence. The application icon is used by the app, window, tray, shortcuts, installer, and uninstall entry.
+Output: `artifacts/installer/LazyLinuxSSH-1.0.0-osx-arm64.dmg` and `...-osx-x64.dmg`. Details: [installer/Установка-macOS.md](installer/Установка-macOS.md).
 
-If you encounter `NU1301`, check access to `https://api.nuget.org/v3/index.json`, DNS, proxy, VPN, and firewall settings. Do not compile the `.iss` file directly: package restore and application publishing must be completed first.
+The scripts run restore, self-contained publish, and packaging themselves — you do not need to build the project beforehand. If you encounter `NU1301`, check NuGet access.
 
 ## Feature details
 
@@ -148,6 +162,7 @@ If you encounter `NU1301`, check access to `https://api.nuget.org/v3/index.json`
 - **Open CMD** starts `cmd.exe` on Windows directly in the current tab, without an external window.
 - The local editor receives focus automatically; Windows CMD displays input, Backspace, and `Ctrl+C`.
 - KeepAlive, heartbeat, and a reconnect overlay help recover from disconnects without crashing the application.
+- Dragging a single file onto an SSH console uploads it into the session’s current directory (overlay + upload indicator).
 
 ### Linux/Bash command catalog
 
@@ -179,15 +194,17 @@ Review script code and replace placeholders with real values before running anyt
 
 The commands `nano`, `vim`, `vi`, and `nvim` with a single file path are intercepted before the terminal TUI starts and open an editor over the current terminal. No project file tree is added.
 
-- Absolute paths, `~`, `~/...`, relative paths, quotes, backslash, and the `--` separator.
+- Absolute paths (`nano /etc/hosts`), `~`, `~/...`, quotes, backslash, and the `--` separator.
+- Relative paths from the shell’s current directory: `nano README.md`, `nano docker-compose.yml`, `nano nginx.conf`, `nano .env` — before opening, the app queries the real `pwd` so the file is resolved in the folder after `cd`, not under `$HOME`.
 - Read, save, and download SSH files through a separate asynchronous SFTP connection.
 - `Ctrl+S`, UTF-8 saving without BOM, and creation of missing files.
 - Line numbers, current-line highlighting, selection, copy/cut/paste, and `Ctrl+F`.
 - Copy the entire document and use the native download dialog.
 - Download the original file or the current contents when unsaved changes exist.
 - A green checkmark after a successful download and an × button to return to the terminal.
+- The editor status shows the full path; if the file is missing — “File not found (…path…)”.
 
-Compound commands, redirection, `sudo nano ...`, and other unsupported forms are not intercepted. Use a simple command such as `nano /etc/hosts`. The editor is intended for UTF-8 text files up to 16 MB; binary files and text containing NUL are rejected without crashing the terminal session.
+Compound commands, redirection, `sudo nano ...`, and other unsupported forms are not intercepted. The editor is intended for UTF-8 text files up to 16 MB; binary files and text containing NUL are rejected without crashing the terminal session.
 
 ### Settings, templates, and history
 

@@ -18,7 +18,7 @@
         </StackPanel>
       </DockPanel>
     </Border>
-    <Grid Grid.Row="1">
+    <Grid Grid.Row="1" Name="TerminalSurface" DragDrop.AllowDrop="True">
       <xaml:TextEditor Name="Editor"
                        Focusable="True"
                        IsReadOnly="True"
@@ -38,6 +38,17 @@
                      TextWrapping="Wrap" TextAlignment="Center" Foreground="#D2D8E2" />
           <Button Content="{DynamicResource 'Переподключить'}" Command="{Binding ReloadCommand}" Classes="primary" HorizontalAlignment="Center" MinWidth="180" MinHeight="44" />
         </StackPanel>
+      </Border>
+      <Border IsVisible="{Binding IsFileDropOverlayVisible}" Background="#9911161D" ZIndex="25">
+        <Border HorizontalAlignment="Center" VerticalAlignment="Center"
+                Background="#E61B2430" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
+                CornerRadius="12" Padding="28,22" MinWidth="280" MaxWidth="420">
+          <StackPanel Spacing="12" HorizontalAlignment="Center">
+            <ProgressBar IsIndeterminate="True" Width="160" Height="4" IsVisible="{Binding IsUploadInProgress}" />
+            <TextBlock Text="{Binding FileDropBannerText}" FontSize="16" FontWeight="SemiBold"
+                       TextAlignment="Center" TextWrapping="Wrap" />
+          </StackPanel>
+        </Border>
       </Border>
       <Grid IsVisible="{Binding IsFileEditorOpen}" ZIndex="30">
         <controls:FileEditorView DataContext="{Binding FileEditor}" />

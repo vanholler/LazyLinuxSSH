@@ -446,6 +446,7 @@ internal abstract class FakeFileTransferSession : IFileTransferSession
     public Dictionary<string, string> Files { get; } = new(StringComparer.Ordinal);
     public List<(string Path, string Content)> Writes { get; } = [];
     public List<(string RemotePath, string LocalPath)> Downloads { get; } = [];
+    public string? WorkingDirectory { get; set; }
 
     public Task<TextFileContent> ReadTextFileAsync(string path, CancellationToken cancellationToken = default) =>
         Task.FromResult(Files.TryGetValue(path, out var content)
@@ -462,6 +463,16 @@ internal abstract class FakeFileTransferSession : IFileTransferSession
     public Task DownloadFileAsync(string remotePath, string localPath, CancellationToken cancellationToken = default)
     {
         Downloads.Add((remotePath, localPath));
+        return Task.CompletedTask;
+    }
+
+    public List<(string LocalPath, string RemoteFileName)> Uploads { get; } = [];
+
+    public Task UploadFileAsync(string localPath, string remoteFileName, CancellationToken cancellationToken = default)
+    {
+        Uploads.Add((localPath, remoteFileName));
+        var name = Path.GetFileName(remoteFileName);
+        Files[name] = File.Exists(localPath) ? File.ReadAllText(localPath) : string.Empty;
         return Task.CompletedTask;
     }
 }

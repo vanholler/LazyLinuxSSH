@@ -2,6 +2,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LazyLinuxSSH.Core.Interfaces;
 using LazyLinuxSSH.Core.Models;
+using LazyLinuxSSH.Core.Services;
 
 namespace LazyLinuxSSH.Desktop.ViewModels;
 
@@ -114,6 +115,7 @@ public sealed partial class LocalTerminalViewModel : TerminalViewModelBase
                 }
                 else
                 {
+                    ObserveShellCommand(command);
                     EchoLocalInputIfRequired(command + "\r");
                     await _session.SendAsync(command + "\r", cancellationToken);
                 }
@@ -167,6 +169,9 @@ public sealed partial class LocalTerminalViewModel : TerminalViewModelBase
     }
 
     protected override Task ReloadCoreAsync() => Task.CompletedTask;
+
+    protected override void ObserveShellCommand(string command) =>
+        _session.WorkingDirectory = ShellWorkingDirectory.Apply(_session.WorkingDirectory, command);
 
     public override async ValueTask DisposeAsync()
     {

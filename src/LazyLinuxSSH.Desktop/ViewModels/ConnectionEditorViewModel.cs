@@ -31,6 +31,22 @@ public sealed partial class ConnectionEditorViewModel : ObservableObject
         SelectedGroup = Groups.SingleOrDefault(group => group.Id == existing?.GroupId) ?? Groups.FirstOrDefault();
     }
 
+    public async Task LoadSecretsAsync(CancellationToken cancellationToken = default)
+    {
+        if (_existing is null) return;
+        try
+        {
+            if (!string.IsNullOrEmpty(_existing.EncryptedPassword))
+                Password = await _credentialProtector.UnprotectAsync(_existing.EncryptedPassword, cancellationToken) ?? string.Empty;
+            if (!string.IsNullOrEmpty(_existing.EncryptedPassphrase))
+                Passphrase = await _credentialProtector.UnprotectAsync(_existing.EncryptedPassphrase, cancellationToken) ?? string.Empty;
+        }
+        catch (Exception exception)
+        {
+            ErrorMessage = $"Не удалось расшифровать сохранённые секреты: {exception.Message}";
+        }
+    }
+
     public event EventHandler<ConnectionProfile>? Saved;
     public event EventHandler? Cancelled;
     public ObservableCollection<ConnectionGroup> Groups { get; }
@@ -147,15 +163,13 @@ public sealed partial class ConnectionEditorViewModel : ObservableObject
             {
                 profile.EncryptedPassword = null;
                 profile.EncryptedPassphrase = string.IsNullOrEmpty(Passphrase)
-                    ? _existing?.EncryptedPassphrase
+                    ? null
                     : await _credentialProtector.ProtectAsync(Passphrase);
             }
             else
             {
                 profile.EncryptedPassphrase = null;
-                profile.EncryptedPassword = string.IsNullOrEmpty(Password)
-                    ? _existing?.EncryptedPassword
-                    : await _credentialProtector.ProtectAsync(Password);
+                profile.EncryptedPassword = await _credentialProtector.ProtectAsync(Password);
             }
 
             await _repository.SaveProfileAsync(profile);
@@ -181,9 +195,14 @@ public sealed partial class ConnectionEditorViewModel : ObservableObject
         if (Port is < 1 or > 65535) return "Порт должен быть в диапазоне 1–65535.";
         if (string.IsNullOrWhiteSpace(Username)) return "Введите имя пользователя.";
         if (SelectedGroup is null) return "Выберите или создайте группу.";
-        if (IsPrivateKey && string.IsNullOrWhiteSpace(PrivateKeyPath)) return "Укажите путь к закрытому ключу.";
-        if (!IsPrivateKey && string.IsNullOrEmpty(Password) && string.IsNullOrEmpty(_existing?.EncryptedPassword))
-            return "Введите пароль для нового подключения.";
+        if (IsPrivateKey)
+        {
+            var keyPath = PrivateKeyPath.Trim();
+            if (string.IsNullOrWhiteSpace(keyPath)) return "Укажите полный путь к закрытому ключу.";
+            if (!Path.IsPathRooted(keyPath)) return "Укажите полный путь к закрытому ключу (например, C:\\Users\\user\\.ssh\\id_ed25519).";
+        }
+        if (!IsPrivateKey && string.IsNullOrEmpty(Password))
+            return "Введите пароль.";
         return null;
     }
 }
